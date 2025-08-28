@@ -1,5 +1,5 @@
 import React from "react";
-import { phonecaseProducts } from "../../dummydata/phonecaseData";
+import { phonecaseProducts } from "../../dummydata/phonecaseProducts";
 
 const ListComponent = () => {
   const dummyProducts = phonecaseProducts;

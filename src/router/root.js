@@ -3,6 +3,8 @@ import ListPage from "../pages/phonecase/ListPage";
 import { createBrowserRouter } from "react-router-dom";
 import DetailPage from "../pages/phonecase/DetailPage";
 
+import CartPage from "../pages/phonecase/CartPage";
+
 const root = createBrowserRouter([
   {
     path: "phonecase",
@@ -11,6 +13,10 @@ const root = createBrowserRouter([
   {
     path: "detail",
     element: <DetailPage></DetailPage>,
+  },
+  {
+    path: "cart",
+    element: <CartPage></CartPage>,
   },
 ]);
 

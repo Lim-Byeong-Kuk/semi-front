@@ -1,8 +1,9 @@
 export const cartData = [
   {
     id: 1,
-    name: "라틀리에 후르츠아가빈 에어팟프로케이스",
-    model: "무화과",
+    name: "라뜰리에 후르츠아카이브 에어팟프로케이스",
+    quantity: 1,
+    model: "보라",
     select: { design: "무화과" },
     price: "₩12,000",
     img: "https://akan.co.kr/upload/products/AIRPRO/LATR5004/thumb1906.jpg",
@@ -10,6 +11,7 @@ export const cartData = [
   {
     id: 2,
     name: "나만의 커스텀 맥세이프 카드케이스",
+    quantity: 2,
     model: "아이폰16플러스",
     select: "",
     price: "₩25,000",
@@ -19,6 +21,7 @@ export const cartData = [
   {
     id: 3,
     name: "양궁대회 커스텀 방탄케이스",
+    quantity: 3,
     model: "아이폰14PRO",
     price: "₩10,000",
     select: "",
@@ -27,6 +30,7 @@ export const cartData = [
   {
     id: 4,
     name: "늘어지냥 커스텀 방탄케이스",
+    quantity: 4,
     model: "아이폰16플러스",
     price: "₩20,000",
     select: "",

@@ -13,8 +13,8 @@ const Header = () => {
           CASE
         </Link>
 
-        {/* 상단 오른쪽 유틸 메뉴 */}
-        <nav className="flex gap-2 text-[10px] text-gray-500 font-medium">
+        {/* 상단 오른쪽 유틸 메뉴 - md 사이즈에서만 보이도록 수정 */}
+        <nav className="hidden md:flex gap-2 text-[10px] text-gray-500 font-medium">
           <span className="cursor-pointer">로그인</span>
           <span className="cursor-pointer">회원가입</span>
           <span className="cursor-pointer">마이페이지</span>

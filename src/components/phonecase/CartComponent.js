@@ -1,76 +1,121 @@
 import React from "react";
 import { cartData } from "../../dummydata/cartData";
+import kakaoPayCheckOut from "../../resources/img/KakaoPayCheckOut.png";
+import NaverPayCheckOut from "../../resources/img/NaverPayCheckOut.png";
 
 const CartComponent = () => {
   return (
-    <div className="p-6 font-sans">
-      {/* 광고 섹션 */}
-      <div className="bg-blue-100 p-4 text-center text-sm text-gray-700 rounded-md mb-6">
-        <span>회원가입하고 구매시 할인 및 적립 리워드 받기</span>
-        <br />
-        <a href="/member/join.html" className="text-blue-500 hover:underline">
-          회원가입
-        </a>
-        &nbsp;또는&nbsp;
-        <a href="/member/login.html" className="text-blue-500 hover:underline">
-          로그인하기
-        </a>
-        .
+    <div className="w-full font-sans p-5">
+      <div className="h-16 bg-gray-100 mb-5">Shopping Cart</div>
+
+      <div className="h-20 bg-gray-200 mb-5">
+        <div className="text-sm p-3 space-y-1">
+          <h5>AKAN 회원만의 특별한 혜택을 놓치지 마세요!</h5>
+          <h5>회원가입하고 구매시 할인 및 적립 리워드 받기</h5>
+          <h5>회원가입 또는 로그인하기.</h5>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        {/* 테이블 섹션 */}
-        {cartData.map((item, index) => (
-          <table
-            key={index}
-            className="table-auto w-full bg-blue-50 p-4 rounded-lg shadow-md"
-          >
-            <tbody>
-              <tr>
-                {/* 상품 이미지 (1열) */}
-                <td className="w-1/5 p-2">
+      <div className="flex flex-col md:flex-row gap-5">
+        {/* Cart List */}
+        <div className="md:w-[70%] w-full space-y-5">
+          {cartData &&
+            cartData.map((data) => (
+              <div key={data.id} className="border-b pb-5 flex gap-4">
+                <div className="w-24 h-24 bg-gray-100 flex items-center justify-center rounded">
                   <img
-                    src={item.img}
-                    alt={item.name}
-                    className="w-full h-24 object-cover rounded-md"
+                    src={data.img}
+                    alt={data.name}
+                    className="w-full h-full object-contain"
                   />
-                </td>
-                {/* 상품 정보 (2열) */}
-                <td className="w-3/5 p-2">
-                  <div className="font-semibold">{item.name}</div>
-                  <div className="text-sm text-gray-500">{item.model}</div>
-                  <div className="text-sm text-gray-500">
-                    색상: {item.color}
+                </div>
+                <div className="flex-1 flex flex-col gap-4">
+                  <div className="flex justify-between items-center">
+                    <div className="font-bold text-sm">{data.name}</div>
+                    <button className="text-red-500 text-sm">X</button>
                   </div>
-                </td>
-                {/* 가격 (3열) */}
-                <td className="w-1/5 p-2 text-right">
-                  <div className="font-semibold">₩{item.price}</div>
-                </td>
-              </tr>
-              <tr>
-                {/* 수량 조정 버튼 (1열) */}
-                <td className="w-1/5 p-2">
-                  <div className="flex items-center space-x-2">
-                    <button className="px-3 py-1 bg-gray-200 text-black rounded-md">
-                      -
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button className="px-3 py-1 bg-gray-200 text-black rounded-md">
-                      +
-                    </button>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <div>{data.model}</div>
+                    {Array.isArray(data.select) &&
+                      data.select.map((item, index) => (
+                        <div key={index}>{item.design}</div>
+                      ))}
                   </div>
-                </td>
-                {/* 가격 (2열) */}
-                <td className="w-3/5 p-2"></td>
-                {/* 가격 (3열) */}
-                <td className="w-1/5 p-2 text-right">
-                  <div className="font-semibold">₩{item.price}</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        ))}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <button className="px-2 border">-</button>
+                      <input
+                        type="number"
+                        className="w-12 text-center border"
+                      />
+                      <button className="px-2 border">+</button>
+                    </div>
+                    <div className="font-bold text-right text-sm">
+                      {data.price}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+
+        {/* Aside */}
+        <div className="md:w-[30%] w-full">
+          <div className="border p-4 space-y-4">
+            <div>
+              <h5 className="font-semibold mb-2">주문상품</h5>
+              <div className="text-sm space-y-1">
+                <h5>총 상품금액</h5>
+                <h5>총 배송비</h5>
+              </div>
+              <div className="flex justify-between mt-2 text-sm">
+                <div className="space-y-1">
+                  <h5>결제예정금액</h5>
+                  <h5>적립예정금액</h5>
+                  <h5>→상품별 적립금</h5>
+                </div>
+                <div className="text-right space-y-1">
+                  <h5>50,800원</h5>
+                  <h5>최대 250원</h5>
+                  <h5>250원</h5>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <button className="w-full py-2 border text-sm">
+                기본결제하기
+              </button>
+
+              {/* 네이버 결제 박스 */}
+              <div className="flex items-center justify-between border rounded-md p-4 bg-[#f0fdf4] text-green-700">
+                <div className="text-sm font-medium">
+                  <span className="block">NAVER</span>
+                  <span className="block">네이버 ID로 간편구매</span>
+                  <span className="block">네이버페이</span>
+                </div>
+                <button className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-green-600">
+                  N Pay 구매
+                </button>
+              </div>
+
+              {/* 카카오 결제 박스 */}
+              <div className="flex items-center justify-between border rounded-md p-4 bg-[#fff7e0] text-yellow-800 mt-4">
+                <div className="text-sm font-medium">
+                  <span className="block">kakao</span>
+                  <span className="block">톡체크아웃</span>
+                </div>
+                <button className="bg-yellow-400 text-black px-4 py-2 rounded text-sm font-semibold hover:bg-yellow-500">
+                  간편구매
+                </button>
+              </div>
+
+              <h5 className="text-xs text-gray-600">
+                [비회원 구매] 카카오페이포인트 1% 적립
+              </h5>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

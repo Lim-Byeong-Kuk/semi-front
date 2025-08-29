@@ -5,12 +5,12 @@ const Footer = () => {
 
   return (
     <footer className="bg-gray-900 text-gray-400 text-[10px] py-3 px-4">
-      <div className="max-w-5xl mx-auto grid grid-cols-[2fr_1fr_1fr] gap-3">
-        {/* 회사정보 - 오른쪽 패딩 추가 */}
+      <div className="max-w-5xl mx-auto flex flex-col md:grid md:grid-cols-3 gap-6">
+        {/* 회사정보 - 데스크톱에서는 첫 번째 열 */}
         <div className="space-y-[2px] md:pr-6">
           {/* 모바일에서 토글 버튼 */}
           <div
-            className="flex items-center justify-between md:justify-start text-white mb-[10px] cursor-pointer md:cursor-auto"
+            className="flex items-center text-white mb-[10px] cursor-pointer md:justify-start md:cursor-auto justify-between"
             onClick={() => setIsCompanyInfoOpen(!isCompanyInfoOpen)}
           >
             <div className="space-x-1">
@@ -57,29 +57,32 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* 고객센터 - 좌우 패딩 줄임 */}
-        <div className="space-y-[2px] md:px-2">
-          <p className="text-white text-[13px] font-semibold">고객센터</p>
-          <p className="text-white text-[13px] font-bold">000-0000-0000</p>
-          <p>평일 10:00 - 18:00</p>
-          <p>점심시간 12:30 - 13:30</p>
-          <p>주말 및 공휴일 휴무</p>
-          <div className="flex gap-[6px] mt-[4px] text-[10px]">
-            <span>💬</span>
-            <span>📷</span>
-            <span>👍</span>
+        {/* 고객센터와 커뮤니티를 가로로 배치하도록 Flexbox 속성 변경 */}
+        <div className="flex flex-col sm:flex-row gap-6 md:contents">
+          {/* 고객센터 */}
+          <div className="space-y-[2px] md:px-2">
+            <p className="text-white text-[13px] font-semibold">고객센터</p>
+            <p className="text-white text-[13px] font-bold">000-0000-0000</p>
+            <p>평일 10:00 - 18:00</p>
+            <p>점심시간 12:30 - 13:30</p>
+            <p>주말 및 공휴일 휴무</p>
+            <div className="flex gap-[6px] mt-[4px] text-[10px]">
+              <span>💬</span>
+              <span>📷</span>
+              <span>👍</span>
+            </div>
           </div>
-        </div>
 
-        {/* 커뮤니티 - 왼쪽 패딩 추가 */}
-        <div className="space-y-[2px] md:pl-6">
-          <ul>
-            <li className="cursor-pointer hover:text-white">공지사항</li>
-            <li className="cursor-pointer hover:text-white">회원가입</li>
-            <li className="cursor-pointer hover:text-white">로그인</li>
-            <li className="cursor-pointer hover:text-white">마이페이지</li>
-            <li className="cursor-pointer hover:text-white">주문조회</li>
-          </ul>
+          {/* 커뮤니티 */}
+          <div className="space-y-[2px] md:pl-6">
+            <ul>
+              <li className="cursor-pointer">공지사항</li>
+              <li className="cursor-pointer">회원가입</li>
+              <li className="cursor-pointer">로그인</li>
+              <li className="cursor-pointer">마이페이지</li>
+              <li className="cursor-pointer">주문조회</li>
+            </ul>
+          </div>
         </div>
       </div>
     </footer>

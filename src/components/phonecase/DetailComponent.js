@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { phonecaseProducts } from "../../dummydata/phonecaseProducts";
+import { useParams } from "react-router-dom";
+import { getOne } from "../../api/shopApi";
 
 const DetailComponent = () => {
-  const imageSrc = phonecaseProducts[3].image;
+  const { productId } = useParams();
+  const [product, setProduct] = useState({
+    id: 0,
+    name: "",
+    price: 0,
+    image: "",
+  });
+
+  useEffect(() => {
+    setProduct(getOne(productId));
+  }, []);
 
   return (
     <div className="p-6 space-y-10">
@@ -10,13 +22,15 @@ const DetailComponent = () => {
       <div className="flex flex-col md:flex-row gap-8">
         {/* 왼쪽: 대표 이미지 */}
         <div className="flex-1 flex justify-center items-center border rounded-lg p-4">
-          <img src={imageSrc} alt="상품 이미지" className="object-cover" />
+          <img src={product.image} alt="상품 이미지" className="object-cover" />
         </div>
 
         {/* 오른쪽: 상세 정보 */}
         <div className="flex-1 space-y-4">
-          <h1 className="text-2xl font-bold">상품명 (Phone Case C)</h1>
-          <p className="text-xl text-red-500 font-semibold">판매가: 12,000원</p>
+          <h1 className="text-2xl font-bold">상품명 {product.name}</h1>
+          <p className="text-xl text-red-500 font-semibold">
+            판매가: {product.price}원
+          </p>
           <p className="text-gray-600">제조사: OO컴퍼니</p>
           <p className="text-gray-600">원산지: 대한민국</p>
           <p className="text-gray-600">배송비: 3,000원</p>
@@ -46,7 +60,7 @@ const DetailComponent = () => {
       {/* 제품상세 이미지 */}
       <div className="border rounded-lg p-4">
         <img
-          src={imageSrc}
+          src={product.image}
           alt="제품 상세 이미지"
           className="w-full object-cover"
         />

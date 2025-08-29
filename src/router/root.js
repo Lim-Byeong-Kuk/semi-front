@@ -17,7 +17,7 @@ const root = createBrowserRouter([
     element: <ListPage></ListPage>,
   },
   {
-    path: "detail",
+    path: "phonecase/:productId",
     element: <DetailPage></DetailPage>,
   },
   {

@@ -5,8 +5,13 @@ import DetailPage from "../pages/phonecase/DetailPage";
 
 import CartPage from "../pages/phonecase/CartPage";
 import CheckoutPage from "../pages/common/CheckoutPage";
+import HomePage from "../pages/HomePage";
 
 const root = createBrowserRouter([
+  {
+    path: "",
+    element: <HomePage></HomePage>,
+  },
   {
     path: "phonecase",
     element: <ListPage></ListPage>,

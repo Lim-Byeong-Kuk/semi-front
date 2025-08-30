@@ -1,19 +1,24 @@
 import React, { useState } from "react";
 import Header from "./Header";
 import { FaUser, FaShoppingCart, FaBars } from "react-icons/fa"; // FaBars 아이콘 추가
+import { useNavigate } from "react-router-dom";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // 메뉴 상태 관리
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const moveToHandler = () => {
+    console.log("클릭했습니다");
+    navigate("/cart");
+  };
+
   return (
     <>
-      <Header />
-
-      <nav className="w-full sticky top-0 z-50">
+      <nav className="w-full bg-gray-100 sticky top-0 z-50">
         <div className="relative max-w-7xl mx-auto h-8 leading-8 px-4 flex justify-between items-center">
           {/* 모바일 햄버거 메뉴 버튼 - md 사이즈에서 숨김 */}
           <button className="md:hidden" onClick={toggleMenu}>
@@ -39,7 +44,7 @@ const NavBar = () => {
               <FaUser title="마이페이지" />
             </span>
             <span className="cursor-pointer">
-              <FaShoppingCart title="장바구니" />
+              <FaShoppingCart title="장바구니" onClick={moveToHandler} />
             </span>
           </div>
         </div>
@@ -63,11 +68,6 @@ const NavBar = () => {
           </ul>
         </div>
       </nav>
-
-      {/* 임시 콘텐츠 */}
-      <div style={{ height: "1500px", backgroundColor: "#f9f9f9" }}>
-        임시 컨텐츠
-      </div>
     </>
   );
 };

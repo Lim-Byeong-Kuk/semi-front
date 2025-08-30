@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { phonecaseProducts } from "../../dummydata/phonecaseProducts";
 import { getList } from "../../api/shopApi";
 import { useNavigate } from "react-router-dom";
+import Header from "../headerfooter/Header";
 
 const ListComponent = () => {
   const navigate = useNavigate();
@@ -16,19 +16,6 @@ const ListComponent = () => {
     setProducts(data);
   }, []);
 
-  const addClickHandler = () => {
-    setProducts((prev) => [
-      {
-        id: 9,
-        name: "Phone Case I",
-        price: 21000,
-        image:
-          "https://akan.co.kr/upload/products/NEVER/JINN5007/thumb-single-graybg.webp",
-      },
-      ...prev,
-    ]);
-  };
-
   const moveToDetailHandler = (e, productId) => {
     e.preventDefault();
 
@@ -37,9 +24,6 @@ const ListComponent = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <button onClick={addClickHandler}>
-        상품 추가 버튼(더미데이터 테스트)
-      </button>
       {/* 상단 전체 개수 */}
       <div className="text-lg font-semibold">전체 30개</div>
 

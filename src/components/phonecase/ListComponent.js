@@ -1,20 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { getList } from "../../api/shopApi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "../headerfooter/Header";
+import useCustomMove from "../../api/hooks/useCustomMove";
+const getNum = (param, defaultValue) => {
+  if (!param) {
+    return defaultValue;
+  }
+  return parseInt(param);
+};
 
 const ListComponent = () => {
+  // const { page, size } = useCustomMove();
+  // const [queryParams] = useSearchParams();
+
+  // page 파라미터에 value 를 가져오고 없으면 기본 1
+  // const page = getNum(queryParams.get("page"), 1);
+  // const size = getNum(queryParams.get("size"), 8);
+
+  const { page, size, moveToList } = useCustomMove();
+
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    // 백엔드가 있다면 이런식으로
-    // getList({ page, size }).then((da) => {
-    //   setServerData(da);
-    // });
-    const data = getList();
-    setProducts(data);
-  }, []);
+    console.log("useEffect 진입");
+    const productList = getList({ page, size });
+    setProducts(productList);
+  }, [page, size]);
 
   const moveToDetailHandler = (e, productId) => {
     e.preventDefault();
@@ -54,6 +67,8 @@ const ListComponent = () => {
           <button
             key={page}
             className="px-4 py-2 rounded border bg-white hover:bg-gray-100"
+            /* 임시로 {page:2 } 를 넣어 테스트 중 */
+            onClick={() => moveToList({ page: 2 })}
           >
             {page}
           </button>

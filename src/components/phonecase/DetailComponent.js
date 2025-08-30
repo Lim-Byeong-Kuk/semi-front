@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { phonecaseProducts } from "../../dummydata/phonecaseProducts";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getOne } from "../../api/shopApi";
 
 const DetailComponent = () => {
   const { productId } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState({
     id: 0,
     name: "",
@@ -15,6 +16,13 @@ const DetailComponent = () => {
   useEffect(() => {
     setProduct(getOne(productId));
   }, []);
+
+  const moveToCartPageHandler = () => {
+    navigate("/cart");
+  };
+  const moveToCheckOutHandler = () => {
+    navigate("/checkout");
+  };
 
   return (
     <div className="p-6 space-y-10">
@@ -36,10 +44,16 @@ const DetailComponent = () => {
           <p className="text-gray-600">배송비: 3,000원</p>
 
           <div className="flex gap-4 pt-4">
-            <button className="flex-1 py-3 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition">
+            <button
+              className="flex-1 py-3 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition"
+              onClick={moveToCheckOutHandler}
+            >
               바로결제
             </button>
-            <button className="flex-1 py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition">
+            <button
+              className="flex-1 py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
+              onClick={moveToCartPageHandler}
+            >
               장바구니
             </button>
           </div>

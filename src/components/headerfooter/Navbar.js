@@ -12,10 +12,21 @@ const NavBar = () => {
   };
 
   const moveToHandler = () => {
-    console.log("클릭했습니다");
     navigate("/cart");
   };
-
+  const moveToPhoneCaseHandler = () => {
+    navigate("/phonecase");
+  };
+  const navItem = [
+    "아티스트",
+    "방탄케이스",
+    "젤리케이스",
+    "카드케이스",
+    "하드케이스",
+    "에어팟케이스",
+    "악세서리",
+    "아크릴/스마트톡",
+  ];
   return (
     <>
       <nav className="w-full bg-gray-100 sticky top-0 z-50">
@@ -27,15 +38,15 @@ const NavBar = () => {
 
           {/* 데스크톱 메뉴 리스트 - my-0 클래스를 추가하여 위아래 마진 제거 */}
           <ul className="my-0 hidden md:flex flex-grow justify-center gap-6 text-[10px] font-semibold text-gray-700 overflow-hidden max-w-[calc(100%-110px)] whitespace-nowrap truncate">
-            <li className="cursor-pointer">아티스트</li>
-            <li className="cursor-pointer">액세서리 시리즈</li>
-            <li className="cursor-pointer">방탄케이스</li>
-            <li className="cursor-pointer">젤리케이스</li>
-            <li className="cursor-pointer">카드케이스</li>
-            <li className="cursor-pointer">하드케이스</li>
-            <li className="cursor-pointer">에어팟케이스</li>
-            <li className="cursor-pointer">악세서리</li>
-            <li className="cursor-pointer">아크릴/스마트톡</li>
+            {navItem.map((item, idx) => (
+              <li
+                key={idx}
+                onClick={moveToPhoneCaseHandler}
+                className="cursor-pointer"
+              >
+                {item}
+              </li>
+            ))}
           </ul>
 
           {/* 아이콘 그룹 */}
@@ -56,15 +67,15 @@ const NavBar = () => {
           }`}
         >
           <ul className="flex flex-col items-center gap-4 text-[12px] font-semibold text-gray-700">
-            <li className="cursor-pointer">아티스트</li>
-            <li className="cursor-pointer">액세서리 시리즈</li>
-            <li className="cursor-pointer">방탄케이스</li>
-            <li className="cursor-pointer">젤리케이스</li>
-            <li className="cursor-pointer">카드케이스</li>
-            <li className="cursor-pointer">하드케이스</li>
-            <li className="cursor-pointer">에어팟케이스</li>
-            <li className="cursor-pointer">악세서리</li>
-            <li className="cursor-pointer">아크릴/스마트톡</li>
+            {navItem.map((item, idx) => (
+              <li
+                key={idx}
+                onClick={moveToPhoneCaseHandler}
+                className="cursor-pointer"
+              >
+                {item}
+              </li>
+            ))}
           </ul>
         </div>
       </nav>

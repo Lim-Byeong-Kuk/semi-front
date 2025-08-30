@@ -1,7 +1,17 @@
 import React from "react";
 import { cartData } from "../../dummydata/cartData";
+import { useNavigate } from "react-router-dom";
 
 const CartComponent = () => {
+  const navigate = useNavigate();
+
+  const moveToHandler = () => {
+    navigate("/checkout");
+  };
+  const moveToImgHandler = () => {
+    navigate("/phonecase/27");
+  };
+  //장바구니에 담긴 제품 이미지 클릭하면 해당 제품 상세페이지로 이동
   return (
     <div className="w-full font-sans p-5">
       <div className="h-16 bg-gray-100 mb-5">Shopping Cart</div>
@@ -25,6 +35,7 @@ const CartComponent = () => {
                     src={data.img}
                     alt={data.name}
                     className="w-full h-full object-contain"
+                    onClick={moveToImgHandler}
                   />
                 </div>
                 <div className="flex-1 flex flex-col gap-4">
@@ -81,7 +92,10 @@ const CartComponent = () => {
             </div>
 
             <div className="space-y-3">
-              <button className="w-full py-2 border text-sm">
+              <button
+                className="w-full py-2 border text-sm"
+                onClick={moveToHandler}
+              >
                 기본결제하기
               </button>
 

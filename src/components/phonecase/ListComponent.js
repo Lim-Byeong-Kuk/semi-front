@@ -3,30 +3,21 @@ import { getList } from "../../api/shopApi";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "../headerfooter/Header";
 import useCustomMove from "../../api/hooks/useCustomMove";
-const getNum = (param, defaultValue) => {
-  if (!param) {
-    return defaultValue;
-  }
-  return parseInt(param);
-};
+import { phonecaseProducts } from "../../dummydata/phonecaseProducts";
+import PaginationNav from "./PaginationNav";
+import { createPagiNationData } from "../../api/paginationApi";
 
 const ListComponent = () => {
-  // const { page, size } = useCustomMove();
-  // const [queryParams] = useSearchParams();
-
-  // page 파라미터에 value 를 가져오고 없으면 기본 1
-  // const page = getNum(queryParams.get("page"), 1);
-  // const size = getNum(queryParams.get("size"), 8);
-
-  const { page, size, moveToList } = useCustomMove();
-
   const navigate = useNavigate();
+  const { page, size } = useCustomMove();
   const [products, setProducts] = useState([]);
+  const [pagedData, setPagedData] = useState({});
 
   useEffect(() => {
-    console.log("useEffect 진입");
-    const productList = getList({ page, size });
-    setProducts(productList);
+    // const productList = getList({ page, size });
+    const pagiNationData = createPagiNationData({ page, size });
+    setPagedData(pagiNationData);
+    setProducts(pagiNationData.products);
   }, [page, size]);
 
   const moveToDetailHandler = (e, productId) => {
@@ -34,6 +25,8 @@ const ListComponent = () => {
 
     navigate(`/phonecase/${productId}`);
   };
+
+  // const products = phonecaseProducts;
 
   return (
     <div className="p-6 space-y-6">
@@ -61,19 +54,8 @@ const ListComponent = () => {
         ))}
       </div>
 
-      {/* 페이지 버튼 */}
-      <div className="flex justify-center space-x-2">
-        {[1, 2, 3, 4].map((page) => (
-          <button
-            key={page}
-            className="px-4 py-2 rounded border bg-white hover:bg-gray-100"
-            /* 임시로 {page:2 } 를 넣어 테스트 중 */
-            onClick={() => moveToList({ page: 2 })}
-          >
-            {page}
-          </button>
-        ))}
-      </div>
+      {/* 페이지네이션 */}
+      <PaginationNav pagedData={pagedData}></PaginationNav>
     </div>
   );
 };

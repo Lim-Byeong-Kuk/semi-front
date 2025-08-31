@@ -1,8 +1,8 @@
 import { phonecaseProducts } from "../dummydata/phonecaseProducts";
 
 export const getList = (pageParam) => {
+  // getList 안에서 pagenationApi 의 pageNation 을 호출하는 방식으로 변경 중
   // todo: 페이지네이션
-  console.log("getList 진입");
   const { page, size } = pageParam;
   const startIdx = (page - 1) * size;
   const endIdx = page * size - 1;
@@ -10,8 +10,7 @@ export const getList = (pageParam) => {
   const productList = phonecaseProducts.filter(
     (p, idx) => idx >= startIdx && idx <= endIdx
   );
-  console.log("==productList==");
-  console.log(productList);
+
   return productList;
 };
 

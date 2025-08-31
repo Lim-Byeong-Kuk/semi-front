@@ -29,7 +29,7 @@ const useCustomMove = () => {
     let queryStr = "";
     if (pageParam) {
       const pageNum = getNum(pageParam.page, 1);
-      const sizeNum = getNum(pageParam.size, 10);
+      const sizeNum = getNum(pageParam.size, 8);
       queryStr = createSearchParams({
         page: pageNum,
         size: sizeNum,

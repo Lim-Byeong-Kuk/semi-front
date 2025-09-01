@@ -12,11 +12,29 @@ const APITestPage2 = () => {
   const [isCommentMode, setCommentMode] = useState(false);
   const [isReviewMode, setReviewMode] = useState(false);
 
+  const [cnt, setCnt] = useState(0);
+  const [users, setUsers] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [reviews, setReviews] = useState([]);
+
+  const openEditForm = (className, id) => {
+    const userInput = prompt("수정할 내용을 입력하세요:");
+    if (userInput === null) return; // 사용자가 취소한 경우
+
+    const form = {
+      content: userInput, // 예시: 수정할 내용
+    };
+    
+    updateById(className, id, form);
+
+  }
+
   const getCommentTable = (comments) => {
     return (
       <table className="w-full table-fixed border-collapse border border-gray-300 text-xs mb-6">
         <thead className="bg-gray-100">
           <tr>
+            <th className="border p-1 w-[4%]">commentId</th>
             <th className="border p-1 w-[4%]">userId</th>
             <th className="border p-1 w-[15%]">id</th>
             <th className="border p-1 w-[8%]">pwd</th>
@@ -30,6 +48,9 @@ const APITestPage2 = () => {
             comments.map((commentData) => (
               <React.Fragment key={commentData.commentId}>
                 <tr>
+                  <td className="border p-1 text-center">
+                    {commentData.commentId}
+                  </td>
                   <td className="border p-1 text-center">
                     {commentData.user.userId}
                   </td>
@@ -46,8 +67,13 @@ const APITestPage2 = () => {
                         placeholder="패스워드"
                         className="border px-1 py-0.5 text-[10px] w-[70px]"
                       />
-                      <button className="px-2 py-0.5 bg-blue-500 text-white text-[10px] rounded hover:bg-blue-600">
+                      <button className="px-2 py-0.5 bg-blue-500 text-white text-[10px] rounded hover:bg-blue-600"
+                        onClick={() => openEditForm()}>
                         수정
+                      </button>
+                      <button className="px-2 py-0.5 bg-blue-500 text-white text-[10px] rounded hover:bg-blue-600"
+                        onClick={() => deleteById(storageEnum.Class.Comment, commentData.commentId)}>
+                        삭제
                       </button>
                     </div>
                   </td>
@@ -148,11 +174,6 @@ const APITestPage2 = () => {
     return data;
   };
 
-  const [cnt, setCnt] = useState(0);
-  const [users, setUsers] = useState([]);
-  const [comments, setComments] = useState([]);
-  const [reviews, setReviews] = useState([]);
-
   const resetUser = async () => {
     const result = await LocalStorageService.initData(
       storageEnum.Class.User,
@@ -178,13 +199,16 @@ const APITestPage2 = () => {
     if (result3 === storageEnum.Result.Failure)
       return storageEnum.Result.Failure;
 
-    setCnt((i) => i + 1);
+    setCnt((i) => 0);
   };
 
   const addReview = async () => {
+    // 현재 날짜 데이터를 ISO인데 String형태로 
     const currentDate = new Date().toISOString();
-    const tempComment = getRandomComment();
+    const tempComment = getRandomComment(); // 랜덤 Comment데이터 가져오기
     const pushComments = [];
+
+    // 제품 코멘트를 랜덤한 개수만큼 생성합니다.
     for (var i = 0; i < parseInt(Math.random() * 5); i++)
       pushComments.push(getRandomComment());
 
@@ -212,11 +236,13 @@ const APITestPage2 = () => {
 
   const addUser = async () => {
     const userData = getRandomUser();
+
     console.log(userData);
     const result = await LocalStorageService.saveByOne(
       storageEnum.Class.User,
       userData
     );
+
 
     if (result === storageEnum.Result.Failure) {
       console.log("데이터추가 실패");
@@ -249,11 +275,33 @@ const APITestPage2 = () => {
     console.log(cnt);
   };
 
+  const deleteById = async (className, id) => {
+    console.log(id);
+    const result = await LocalStorageService.deleteById(className, id);
+    if (result === storageEnum.Result.Failure) {
+      console.log("데이터 삭제 실패");
+      return storageEnum.Result.Failure;
+    }
+
+    setCnt(i => i + 1);
+  }
+
+  const updateById = async (className, id, newData) => {
+    const result = await LocalStorageService.updateById(className, id, newData);
+    if (result === storageEnum.Result.Failure) {
+      console.log("데이터 삭제 실패");
+      return storageEnum.Result.Failure;
+    }
+
+    setCnt(i => i + 1);
+  }
+
   useEffect(() => {
     (async () => {
       const resultUser = await LocalStorageService.findAll(
         storageEnum.Class.User
       );
+
       if (resultUser === storageEnum.Result.Failure)
         return storageEnum.Result.Failure;
 

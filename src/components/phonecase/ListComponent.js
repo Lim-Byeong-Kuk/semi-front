@@ -26,12 +26,12 @@ const ListComponent = () => {
     navigate(`/phonecase/${productId}`);
   };
 
-  // const products = phonecaseProducts;
-
   return (
     <div className="p-6 space-y-6">
       {/* 상단 전체 개수 */}
-      <div className="text-lg font-semibold">전체 30개</div>
+      <div className="text-lg font-semibold">
+        전체 {pagedData.totalDataCnt}개
+      </div>
 
       {/* 상품 목록 */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -39,16 +39,23 @@ const ListComponent = () => {
           <div
             key={product.id}
             onClick={(e) => moveToDetailHandler(e, product.id)}
-            className="border rounded-lg shadow-sm hover:shadow-md transition p-4 flex flex-col items-center cursor-pointer"
+            className="cursor-pointer"
           >
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-24 h-24 object-cover mb-3 "
-            />
-            <div className="text-base font-medium">{product.name}</div>
-            <div className="text-sm text-gray-600">
-              {product.price.toLocaleString()}원
+            <div className="w-full h-56 flex items-center justify-left bg-white">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+
+            <div className="mt-2 space-y-1">
+              <div className="text-[11px] font-medium text-gray-800">
+                {product.name}
+              </div>
+              <div className="text-[10px] text-gray-600">
+                {product.price.toLocaleString()}원
+              </div>
             </div>
           </div>
         ))}

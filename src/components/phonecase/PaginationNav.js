@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useCustomMove from "../../api/hooks/useCustomMove";
+import { SlArrowLeft } from "react-icons/sl";
+import { SlArrowRight } from "react-icons/sl";
 
 const PaginationNav = (props) => {
   const { moveToList } = useCustomMove();
@@ -7,23 +9,21 @@ const PaginationNav = (props) => {
   const [pageNumArr, setPageNumArr] = useState([]);
 
   useEffect(() => {
-    console.log("pageData");
-    console.log(pagedData.pageNumList);
-    console.log(Array.isArray(pagedData.pageNumList));
     setPageNumArr(pagedData.pageNumList);
   }, [pagedData]);
 
   return (
     <div className="flex justify-center space-x-2">
       {/* 이전으로 버튼 */}
-      <button
-        onClick={() => moveToList({ page: pagedData.prevGroupLastPage })}
-        className="px-4 py-2 rounded border bg-white hover:bg-gray-100"
-        disabled={!pagedData.hasPrevPageGroup}
-      >
-        &lt; {/* < 문자 */}
-      </button>
-
+      {pagedData.hasPrevPageGroup && (
+        <button
+          onClick={() => moveToList({ page: pagedData.prevGroupLastPage })}
+          className="px-4 py-2 rounded border bg-white hover:bg-gray-100"
+          disabled={!pagedData.hasPrevPageGroup}
+        >
+          <SlArrowLeft />
+        </button>
+      )}
       {/* 페이지 블록 */}
       {pageNumArr &&
         pageNumArr.map((page) => (
@@ -38,13 +38,15 @@ const PaginationNav = (props) => {
         ))}
 
       {/* 다음으로 버튼 */}
-      <button
-        onClick={() => moveToList({ page: pagedData.nextGroupFirstPage })}
-        className="px-4 py-2 rounded border bg-white hover:bg-gray-100"
-        disabled={!pagedData.hasNextPageGroup}
-      >
-        &gt; {/* > 문자 */}
-      </button>
+      {pagedData.hasNextPageGroup && (
+        <button
+          onClick={() => moveToList({ page: pagedData.nextGroupFirstPage })}
+          className="px-4 py-2 rounded border bg-white hover:bg-gray-100"
+          disabled={!pagedData.hasNextPageGroup}
+        >
+          <SlArrowRight />
+        </button>
+      )}
     </div>
   );
 };

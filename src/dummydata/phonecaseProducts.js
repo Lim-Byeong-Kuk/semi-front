@@ -683,4 +683,214 @@ export const phonecaseProducts = [
     image:
       "https://akan.co.kr/upload/products/SOFTT/IUMS5060/thumb-single.webp",
   },
+  {
+    id: 101,
+    name: "하트토끼하토메르헨 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5273/thumb-single-graybg.webp",
+  },
+  {
+    id: 102,
+    name: "와글와글곰 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/SJKY5022/thumb-single-graybg.webp",
+  },
+  {
+    id: 103,
+    name: "펭귄 패턴 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/IY0003/thumb-single-graybg.webp",
+  },
+  {
+    id: 104,
+    name: "달과하늘 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5277/thumb-single-graybg.webp",
+  },
+  {
+    id: 105,
+    name: "낮달2 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5272/thumb-single-graybg.webp",
+  },
+  {
+    id: 106,
+    name: "심플봄꽃 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5267/thumb-single-graybg.webp",
+  },
+  {
+    id: 107,
+    name: "난파선 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5261/thumb-single-graybg.webp",
+  },
+  {
+    id: 108,
+    name: "달뜨는밤 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5260/thumb-single-graybg.webp",
+  },
+  {
+    id: 109,
+    name: "잠긴별 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5258/thumb-single-graybg.webp",
+  },
+  {
+    id: 110,
+    name: "달동산 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5257/thumb-single-graybg.webp",
+  },
+  {
+    id: 111,
+    name: "큐트개구리 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5256/thumb-single-graybg.webp",
+  },
+  {
+    id: 112,
+    name: "가을저녁 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5255/thumb-single-graybg.webp",
+  },
+  {
+    id: 113,
+    name: "오리 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5253/thumb-single-graybg.webp",
+  },
+  {
+    id: 114,
+    name: "하늘무지개 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5250/thumb-single-graybg.webp",
+  },
+  {
+    id: 115,
+    name: "큰나무 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5249/thumb-single-graybg.webp",
+  },
+  {
+    id: 116,
+    name: "서쪽하늘 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5248/thumb-single-graybg.webp",
+  },
+  {
+    id: 117,
+    name: "풍선토끼 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5242/thumb-single-graybg.webp",
+  },
+  {
+    id: 118,
+    name: "겨울고양이 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5240/thumb-single-graybg.webp",
+  },
+  {
+    id: 119,
+    name: "심플고양이2 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5239/thumb-single-graybg.webp",
+  },
+  {
+    id: 120,
+    name: "반짝이 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5237/thumb-single-graybg.webp",
+  },
+  {
+    id: 121,
+    name: "노을토끼 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5232/thumb-single-graybg.webp",
+  },
+  {
+    id: 122,
+    name: "빙수펭귄 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5231/thumb-single-graybg.webp",
+  },
+  {
+    id: 123,
+    name: "희미한기억 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5229/thumb-single-graybg.webp",
+  },
+  {
+    id: 124,
+    name: "아이스크림토끼 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5228/thumb-single-graybg.webp",
+  },
+  {
+    id: 125,
+    name: "키위 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5222/thumb-single-graybg.webp",
+  },
+  {
+    id: 126,
+    name: "우주2 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5217/thumb-single-graybg.webp",
+  },
+  {
+    id: 127,
+    name: "달밤2 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5208/thumb-single-graybg.webp",
+  },
+  {
+    id: 128,
+    name: "공룡2 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5207/thumb-single-graybg.webp",
+  },
+  {
+    id: 129,
+    name: "까꿍 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5206/thumb-single-graybg.webp",
+  },
+  {
+    id: 130,
+    name: "풍차 맥세이프 커스텀 카드지갑",
+    price: 15000,
+    image:
+      "https://akan.co.kr/upload/products/MPOCKET/ZSEY5205/thumb-single-graybg.webp",
+  },
 ];

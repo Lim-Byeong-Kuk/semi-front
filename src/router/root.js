@@ -7,6 +7,9 @@ import CartPage from "../pages/phonecase/CartPage";
 import CheckoutPage from "../pages/common/CheckoutPage";
 import HomePage from "../pages/HomePage";
 import APITestPage from "../pages/APITestPage";
+import LoginPage from "../pages/common/LoginPage";
+import SignupPage from "../pages/common/SignupPage";
+import SignupPage2 from "../pages/common/SingupPage2";
 
 const root = createBrowserRouter([
   {
@@ -32,6 +35,18 @@ const root = createBrowserRouter([
   {
     path: "apiTest",
     element: <APITestPage></APITestPage>,
+  },
+  {
+    path: "login",
+    element: <LoginPage />,
+  },
+  {
+    path: "signup",
+    element: <SignupPage />,
+  },
+  {
+    path: "signup2",
+    element: <SignupPage2 />,
   },
 ]);
 

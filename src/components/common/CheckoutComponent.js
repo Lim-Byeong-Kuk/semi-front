@@ -1,41 +1,62 @@
-import React from "react";
-import { FaArrowLeft, FaUser } from "react-icons/fa";
-import { Link } from "react-router-dom"; // react-router-dom 쓰실 경우
+import React, { useState } from "react";
+
+import CheckoutHeader from "../headerfooter/CheckoutHeader";
+import { IMaskInput } from "react-imask";
 
 const CheckoutComponent = () => {
+  const [shippingAddress, setShippingAddress] = useState({
+    name: "",
+    address: {
+      postcode: "",
+      roadAddress: "",
+      detailAddress: "",
+    },
+    phoneNum: "",
+    deleveryInstruction: "",
+  });
+
+  const openPostcode = () => {
+    new window.daum.Postcode({
+      oncomplete: (data) => {
+        // 선택한 데이터 가져오기
+
+        setShippingAddress((prev) => ({
+          ...prev,
+          address: {
+            ...prev.address,
+            postcode: data.zonecode,
+            roadAddress: data.roadAddress,
+          },
+        }));
+      },
+    }).open();
+  };
+
+  const changeHandler = (e) => {
+    setShippingAddress((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const changeDetailAddress = (e) => {
+    setShippingAddress((prev) => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        detailAddress: e.target.value,
+      },
+    }));
+  };
+
+  const logHandler = () => {
+    console.log(shippingAddress);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-50 p-4">
-        <div className="max-w-2xl mx-auto relative flex flex-col items-center">
-          {/* 로고 */}
-          <Link
-            to="/"
-            className="text-3xl font-extrabold text-black mb-6 cursor-pointer"
-          >
-            CASE
-          </Link>
-
-          {/* 주문/결제 텍스트 */}
-          <h1 className="text-lg font-semibold mb-3">주문/결제</h1>
-
-          {/* 뒤로가기 버튼 */}
-          <button
-            className="absolute left-0 top-0 text-gray-500"
-            aria-label="뒤로가기"
-          >
-            <FaArrowLeft size={20} />
-          </button>
-
-          {/* 마이페이지 버튼 */}
-          <button
-            className="absolute right-0 top-0 text-gray-500"
-            aria-label="마이페이지"
-          >
-            <FaUser size={20} />
-          </button>
-        </div>
-      </header>
+      <CheckoutHeader />
+      <button onClick={logHandler}>배송지 정보 로그 버튼</button>
 
       {/* Content */}
       <main className="max-w-2xl mx-auto p-4 space-y-6">
@@ -47,6 +68,9 @@ const CheckoutComponent = () => {
               <label className="block text-sm font-medium">받는사람</label>
               <input
                 type="text"
+                name="name"
+                value={shippingAddress.name}
+                onChange={(e) => changeHandler(e)}
                 className="mt-1 w-full border rounded-lg p-2 text-sm"
                 placeholder="이름 입력"
               />
@@ -56,35 +80,54 @@ const CheckoutComponent = () => {
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
+                  value={shippingAddress.address.postcode}
                   className="flex-1 border rounded-lg p-2 text-sm"
+                  readOnly
                   placeholder="우편번호"
                 />
-                <button className="px-3 py-2 text-sm bg-gray-100 rounded-lg border">
-                  검색
+                <button
+                  type="button"
+                  onClick={openPostcode}
+                  className="px-3 py-2 text-sm bg-gray-100 rounded-lg border"
+                >
+                  주소 검색
                 </button>
               </div>
               <input
                 type="text"
-                className="w-full border rounded-lg p-2 text-sm mb-2"
+                value={shippingAddress.address.roadAddress}
+                readOnly
                 placeholder="기본주소"
+                className="w-full border rounded-lg p-2 text-sm mb-2"
               />
               <input
                 type="text"
+                value={shippingAddress.address.detailAddress}
+                onChange={(e) => changeDetailAddress(e)}
                 className="w-full border rounded-lg p-2 text-sm"
                 placeholder="나머지 주소"
               />
             </div>
             <div>
               <label className="block text-sm font-medium">휴대전화</label>
-              <input
+              <IMaskInput
                 type="tel"
+                name="phoneNum"
+                value={shippingAddress.phoneNum}
+                onChange={(e) => changeHandler(e)}
+                mask="000-0000-0000"
                 className="mt-1 w-full border rounded-lg p-2 text-sm"
                 placeholder="010-0000-0000"
               />
             </div>
             <div>
               <label className="block text-sm font-medium">배송 메시지</label>
-              <select className="mt-1 w-full border rounded-lg p-2 text-sm">
+              <select
+                name="deleveryInstruction"
+                value={shippingAddress.deleveryInstruction}
+                onChange={(e) => changeHandler(e)}
+                className="mt-1 w-full border rounded-lg p-2 text-sm"
+              >
                 <option>부재 시 문 앞에 놓아주세요</option>
                 <option>경비실에 맡겨주세요</option>
                 <option>직접 받겠습니다</option>

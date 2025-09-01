@@ -3,10 +3,11 @@ import ListPage from "../pages/phonecase/ListPage";
 import { createBrowserRouter } from "react-router-dom";
 import DetailPage from "../pages/phonecase/DetailPage";
 
-import CartPage from "../pages/phonecase/CartPage";
+import CartPage from "../pages/common/CartPage";
 import CheckoutPage from "../pages/common/CheckoutPage";
 import HomePage from "../pages/HomePage";
 import APITestPage from "../pages/APITestPage";
+import APITestPage2 from "../pages/APITestPage2";
 import LoginPage from "../pages/common/LoginPage";
 import SignupPage from "../pages/common/SignupPage";
 import SignupPage2 from "../pages/common/SingupPage2";
@@ -35,6 +36,10 @@ const root = createBrowserRouter([
   {
     path: "apiTest",
     element: <APITestPage></APITestPage>,
+  },
+  {
+    path: "apiTest2",
+    element: <APITestPage2></APITestPage2>,
   },
   {
     path: "login",

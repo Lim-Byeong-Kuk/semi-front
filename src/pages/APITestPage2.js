@@ -17,18 +17,6 @@ const APITestPage2 = () => {
   const [comments, setComments] = useState([]);
   const [reviews, setReviews] = useState([]);
 
-  const openEditForm = (className, id) => {
-    const userInput = prompt("수정할 내용을 입력하세요:");
-    if (userInput === null) return; // 사용자가 취소한 경우
-
-    const form = {
-      content: userInput, // 예시: 수정할 내용
-    };
-    
-    updateById(className, id, form);
-
-  }
-
   const getCommentTable = (comments) => {
     return (
       <table className="w-full table-fixed border-collapse border border-gray-300 text-xs mb-6">
@@ -67,12 +55,18 @@ const APITestPage2 = () => {
                         placeholder="패스워드"
                         className="border px-1 py-0.5 text-[10px] w-[70px]"
                       />
-                      <button className="px-2 py-0.5 bg-blue-500 text-white text-[10px] rounded hover:bg-blue-600"
-                        onClick={() => openEditForm()}>
+                      <button className="px-2 py-0.5 bg-blue-500 text-white text-[10px] rounded hover:bg-blue-600">
                         수정
                       </button>
-                      <button className="px-2 py-0.5 bg-blue-500 text-white text-[10px] rounded hover:bg-blue-600"
-                        onClick={() => deleteById(storageEnum.Class.Comment, commentData.commentId)}>
+                      <button
+                        className="px-2 py-0.5 bg-blue-500 text-white text-[10px] rounded hover:bg-blue-600"
+                        onClick={() =>
+                          deleteById(
+                            storageEnum.Class.Comment,
+                            commentData.commentId
+                          )
+                        }
+                      >
                         삭제
                       </button>
                     </div>
@@ -203,7 +197,7 @@ const APITestPage2 = () => {
   };
 
   const addReview = async () => {
-    // 현재 날짜 데이터를 ISO인데 String형태로 
+    // 현재 날짜 데이터를 ISO인데 String형태로
     const currentDate = new Date().toISOString();
     const tempComment = getRandomComment(); // 랜덤 Comment데이터 가져오기
     const pushComments = [];
@@ -242,7 +236,6 @@ const APITestPage2 = () => {
       storageEnum.Class.User,
       userData
     );
-
 
     if (result === storageEnum.Result.Failure) {
       console.log("데이터추가 실패");
@@ -283,8 +276,8 @@ const APITestPage2 = () => {
       return storageEnum.Result.Failure;
     }
 
-    setCnt(i => i + 1);
-  }
+    setCnt((i) => i + 1);
+  };
 
   const updateById = async (className, id, newData) => {
     const result = await LocalStorageService.updateById(className, id, newData);
@@ -293,8 +286,8 @@ const APITestPage2 = () => {
       return storageEnum.Result.Failure;
     }
 
-    setCnt(i => i + 1);
-  }
+    setCnt((i) => i + 1);
+  };
 
   useEffect(() => {
     (async () => {

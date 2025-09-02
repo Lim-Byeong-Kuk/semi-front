@@ -23,13 +23,13 @@ const storageEnum = {
   },
 };
 
-
 const getIdByClass = {
   [storageEnum.Class.Product]: "productId",
   [storageEnum.Class.Cart]: "cartId",
   [storageEnum.Class.User]: "userId",
-  [storageEnum.Class.Comment]: "commentId", 
-  [storageEnum.Class.Review]: "reviewId",   
+  [storageEnum.Class.Comment]: "commentId",
+  [storageEnum.Class.Review]: "reviewId",
+  [storageEnum.Class.QnA]: "qnaId",
 };
 
 // Product클래스입니다.
@@ -62,7 +62,9 @@ class Product {
     if (isValid(products) === false) return 1;
 
     // 마지막 번호 + 1
-    const maxPno = Math.max(...products.map((product) => product.productId || 0));
+    const maxPno = Math.max(
+      ...products.map((product) => product.productId || 0)
+    );
     return maxPno + 1;
   }
 }
@@ -102,7 +104,7 @@ class User {
   // 데이터 체크입니다.
   // 모두 true로 판정이 나와야 성공입니다.
   static validate(data) {
-    console.log("userData" , data);
+    console.log("userData", data);
     return (
       // createEntitiy에서 pno를 ""로 넘기게 됩니다.
       typeof data.id === "string" && typeof data.pwd === "number"
@@ -131,7 +133,7 @@ class Comment {
     this.content = content;
     this.date = date;
 
-    console.log("commetId" , this.commentId);
+    console.log("commetId", this.commentId);
   }
 
   // Comment.validate();
@@ -151,7 +153,6 @@ class Comment {
     );
   }
 
-  
   // 저장소에서 pno의 값을 확인합니다.
   static getNextId() {
     const comments =
@@ -164,7 +165,7 @@ class Comment {
       ...comments.map((comment) => comment.commentId || 0)
     );
 
-    console.log("review pno",maxPno);
+    console.log("review pno", maxPno);
     return maxPno + 1;
   }
 }
@@ -185,7 +186,7 @@ class Review {
   // 데이터 체크입니다.
   // 모두 true로 판정이 나와야 성공입니다.
   static validate(data) {
-    console.log("test" , data);
+    console.log("test", data);
     console.log(Product.validate(data.product));
     console.log(User.validate(data.user));
     console.log(typeof data.title === "string");
@@ -209,9 +210,32 @@ class Review {
     // 데이터에 문제가 있다면 1번을 부여합니다.
     if (isValid(reviews) === false) return 1;
 
-    const maxPno = Math.max(
-      ...reviews.map((reviews) => reviews.reviewId || 0)
-    );
+    const maxPno = Math.max(...reviews.map((reviews) => reviews.reviewId || 0));
+    return maxPno + 1;
+  }
+}
+
+class QnA {
+  constructor(qnaId, user, title, content, date) {
+    this.qnaId = QnA.getNextId();
+    this.user = user;
+    this.title = title;
+    this.content = content;
+    this.date = date;
+  }
+
+  static validate(data) {
+    return true;
+  }
+
+  // 저장소에서 pno의 값을 확인합니다.
+  static getNextId() {
+    const qnas = JSON.parse(localStorage.getItem(storageEnum.Class.QnA)) || [];
+
+    // 데이터에 문제가 있다면 1번을 부여합니다.
+    if (isValid(qnas) === false) return 1;
+
+    const maxPno = Math.max(...qnas.map((qna) => qnas.qnaId || 0));
     return maxPno + 1;
   }
 }
@@ -298,7 +322,7 @@ function createEntity(className, data) {
       // const pnoId = data[getIdByClass[storageEnum.Class.Comment]];
       const pnoId = "";
       instance = new Comment(user, pnoId, content, date);
-      console.log("instance",instance);
+      console.log("instance", instance);
       break;
     }
     case storageEnum.Class.Review: {
@@ -307,7 +331,7 @@ function createEntity(className, data) {
       console.log("data", data);
       console.log("coments", data.comments);
       if (Review.validate(data) === false) break;
-      
+
       // 문제가 없는 것으로 판단하여,
       // 클래스를 생성자를 통해 생성해줍니다.
       // tempClass에 생성한 것을 넣습니다.
@@ -325,6 +349,16 @@ function createEntity(className, data) {
         date,
         comments
       );
+      break;
+    }
+    case storageEnum.Class.QnA: {
+      // 클래스의 여부를 체크합니다.
+      // 유효하지 않은 경우 바로 break 합니다.
+      if (QnA.validate(data) === false) break;
+
+      const pnoId = "";
+      const { user, title, content, date } = data;
+      instance = new Review(pnoId, user, title, content, date);
       break;
     }
   }
@@ -539,7 +573,9 @@ const updateById = (className, id, newData) => {
   // 참이면 새로운 데이터를 덮어씌웁니다.
   // 거짓이면 기존 데이터를 덮어씌웁니다.
   const updatedData = getData.map((data) => {
-    return String(data[getIdByClass[className]]) === String(id) ? newData : data;
+    return String(data[getIdByClass[className]]) === String(id)
+      ? newData
+      : data;
   });
 
   // 데이터를 저장소에 전달합니다.
@@ -560,12 +596,18 @@ const deleteById = (className, id) => {
   if (isValid(getData) === false) return storageEnum.Result.Failure;
 
   // 가져온 데이터에서 id만 제외
-  console.log("가져와따",getData);
+  console.log("가져와따", getData);
   console.log(id);
-  console.log(getData.filter((data) => String(data[getIdByClass[className]]) !== String(id)));
-  const updatedData = getData.filter((data) => String(data[getIdByClass[className]]) !== String(id));
-  
-  // 이것으로 인하여 삭제가 안되므로 주석처리 하였습니다. 
+  console.log(
+    getData.filter(
+      (data) => String(data[getIdByClass[className]]) !== String(id)
+    )
+  );
+  const updatedData = getData.filter(
+    (data) => String(data[getIdByClass[className]]) !== String(id)
+  );
+
+  // 이것으로 인하여 삭제가 안되므로 주석처리 하였습니다.
   // if (isValid(updatedData) === false) return storageEnum.Result.Failure;
 
   // 저장소에 데이터를 저장합니다.

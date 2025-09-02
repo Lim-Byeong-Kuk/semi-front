@@ -1,10 +1,10 @@
 import React from "react";
-import CheckoutComponent from "../../components/common/CheckoutComponent";
+import Checkout from "../../components/common/Checkout";
 
 const CheckoutPage = () => {
   return (
     <div>
-      <CheckoutComponent></CheckoutComponent>
+      <Checkout></Checkout>
     </div>
   );
 };

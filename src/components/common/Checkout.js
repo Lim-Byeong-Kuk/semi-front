@@ -1,32 +1,53 @@
 import React, { useState } from "react";
 
 import CheckoutHeader from "../headerfooter/CheckoutHeader";
-import { IMaskInput } from "react-imask";
+import { LocalStorageService } from "../../api/storageApi";
 
-const CheckoutComponent = () => {
+/*
+  이 페이지에서 완성될 데이터 -> 결제내역
+  name:
+  address: {
+    postcode:
+    roadAddress:
+    detailAddress:
+  }
+  phoneNum:
+  deleveryInstruction:
+  paymentOption:
+  상품가격에 대한 정보는 장바구니 또는 제품상세페이지에서 넘어와야 함
+
+
+  TODO :
+  - 버튼이 누르면 배송지 정보에 대한 유효성 검사(특히 이름이 제대로된 모양이어야 함)
+    를 하고 실패하면 alert 창을 띄워야 함
+  - 폰넘버는 결제버튼이 눌렸을때 세팅해주도록 한다. (010-0000-0000 1,2,3번째 번호를 따로 받았기 때문에)
+  - 결제버튼이 누르면 결제내역 데이터를 완성해서 localStorage 저장!
+*/
+
+const Checkout = () => {
+  const [phoneFirst, setPhoneFirst] = useState("010");
+  const [phoneSecond, setPhoneSecond] = useState("");
+  const [phoneThird, setPhoneThird] = useState("");
+  const [paymentOption, setPaymentOption] = useState("");
+
   const [shippingAddress, setShippingAddress] = useState({
     name: "",
-    address: {
-      postcode: "",
-      roadAddress: "",
-      detailAddress: "",
-    },
+    postcode: "",
+    roadAddress: "",
+    detailAddress: "",
     phoneNum: "",
-    deleveryInstruction: "",
+    deleveryInstruction: "부재 시 문 앞에 놓아주세요",
   });
 
+  /* daum 우편번호 API 사용 */
   const openPostcode = () => {
     new window.daum.Postcode({
       oncomplete: (data) => {
         // 선택한 데이터 가져오기
-
         setShippingAddress((prev) => ({
           ...prev,
-          address: {
-            ...prev.address,
-            postcode: data.zonecode,
-            roadAddress: data.roadAddress,
-          },
+          postcode: data.zonecode,
+          roadAddress: data.roadAddress,
         }));
       },
     }).open();
@@ -39,24 +60,24 @@ const CheckoutComponent = () => {
     }));
   };
 
-  const changeDetailAddress = (e) => {
-    setShippingAddress((prev) => ({
-      ...prev,
-      address: {
-        ...prev.address,
-        detailAddress: e.target.value,
-      },
-    }));
-  };
-
   const logHandler = () => {
-    console.log(shippingAddress);
+    setShippingAddress((prev) => {
+      const temp = {
+        ...prev,
+        phoneNum: `${phoneFirst}${phoneSecond}${phoneThird}`,
+      };
+      console.log(temp);
+      return temp;
+    });
+
+    console.log("결제수단 : ", paymentOption);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <CheckoutHeader />
-      <button onClick={logHandler}>배송지 정보 로그 버튼</button>
+
+      <button onClick={logHandler}>배송지 정보 로그 버튼(테스트용)</button>
 
       {/* Content */}
       <main className="max-w-2xl mx-auto p-4 space-y-6">
@@ -65,7 +86,7 @@ const CheckoutComponent = () => {
           <h2 className="text-lg font-semibold mb-3">배송지</h2>
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium">받는사람</label>
+              <label className="block text-sm font-medium">*받는사람</label>
               <input
                 type="text"
                 name="name"
@@ -76,11 +97,12 @@ const CheckoutComponent = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">주소</label>
+              <label className="block text-sm font-medium">*주소</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
-                  value={shippingAddress.address.postcode}
+                  name="postcode"
+                  value={shippingAddress.postcode}
                   className="flex-1 border rounded-lg p-2 text-sm"
                   readOnly
                   placeholder="우편번호"
@@ -95,30 +117,62 @@ const CheckoutComponent = () => {
               </div>
               <input
                 type="text"
-                value={shippingAddress.address.roadAddress}
+                name="roadAddress"
+                value={shippingAddress.roadAddress}
                 readOnly
                 placeholder="기본주소"
                 className="w-full border rounded-lg p-2 text-sm mb-2"
               />
               <input
                 type="text"
-                value={shippingAddress.address.detailAddress}
-                onChange={(e) => changeDetailAddress(e)}
+                name="detailAddress"
+                value={shippingAddress.detailAddress}
+                onChange={(e) => changeHandler(e)}
                 className="w-full border rounded-lg p-2 text-sm"
                 placeholder="나머지 주소"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">휴대전화</label>
-              <IMaskInput
-                type="tel"
-                name="phoneNum"
-                value={shippingAddress.phoneNum}
-                onChange={(e) => changeHandler(e)}
-                mask="000-0000-0000"
-                className="mt-1 w-full border rounded-lg p-2 text-sm"
-                placeholder="010-0000-0000"
-              />
+              <label className="block text-sm font-medium">*휴대전화</label>
+              <div className="flex gap-2 flex-1">
+                <select
+                  name="phoneFirst"
+                  value={phoneFirst}
+                  onChange={(e) => setPhoneFirst(e.target.value)}
+                  className="border rounded px-3 py-2"
+                >
+                  <option>010</option>
+                  <option>011</option>
+                  <option>016</option>
+                  <option>017</option>
+                  <option>018</option>
+                  <option>019</option>
+                </select>
+                <input
+                  type="text"
+                  name="phoneSecond"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={phoneSecond}
+                  onChange={(e) =>
+                    setPhoneSecond(e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                  className="flex-1 border rounded px-3 py-2"
+                  maxLength="4"
+                />
+                <input
+                  type="text"
+                  name="phoneThird"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={phoneThird}
+                  onChange={(e) =>
+                    setPhoneThird(e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                  className="flex-1 border rounded px-3 py-2"
+                  maxLength="4"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium">배송 메시지</label>
@@ -170,14 +224,22 @@ const CheckoutComponent = () => {
               "카드 결제",
               "무통장 입금",
               "휴대폰 결제",
-            ].map((method) => (
-              <button
-                key={method}
-                className="w-full border rounded-lg p-2 text-sm hover:bg-gray-50 text-left"
-              >
-                {method}
-              </button>
-            ))}
+            ].map((option) => {
+              const isSelected = paymentOption === option;
+
+              return (
+                <button
+                  key={option}
+                  onClick={(e) => {
+                    setPaymentOption(option);
+                  }}
+                  className={`w-full border rounded-lg p-2 text-sm text-left
+        ${isSelected ? "bg-blue-500 text-white" : "hover:bg-gray-100"}`}
+                >
+                  {option}
+                </button>
+              );
+            })}
           </div>
           <p className="mt-3 text-xs text-gray-500 leading-relaxed">
             - 주문 변경 시 카드사 혜택 및 할부 적용 여부는 카드사 정책에 따라
@@ -203,4 +265,4 @@ const CheckoutComponent = () => {
   );
 };
 
-export default CheckoutComponent;
+export default Checkout;

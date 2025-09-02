@@ -8,14 +8,16 @@ const DetailComponent = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState({
-    id: 0,
+    productId: 0,
     name: "",
     price: 0,
     image: "",
   });
 
   useEffect(() => {
-    setProduct(getOne(productId));
+    const test = getOne(productId);
+    setProduct(test);
+    console.log(test);
   }, []);
 
   const moveToCartPageHandler = () => {

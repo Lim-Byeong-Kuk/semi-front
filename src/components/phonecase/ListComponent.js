@@ -37,8 +37,8 @@ const ListComponent = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product) => (
           <div
-            key={product.id}
-            onClick={(e) => moveToDetailHandler(e, product.id)}
+            key={product.productId}
+            onClick={(e) => moveToDetailHandler(e, product.productId)}
             className="cursor-pointer"
           >
             <div className="w-full h-56 flex items-center justify-left bg-white">

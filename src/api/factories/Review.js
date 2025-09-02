@@ -1,17 +1,15 @@
-import { storageEnum, isValid } from "./factoriesApi";
+import { storageEnum, isValid, getIdByClass } from "./factoriesApi";
 import { Product } from "./Product";
 import { User } from "./User";
 
 export class Review {
-  constructor(reviewId, product, user, title, content, date, comments) {
-    // this.reviewId = isValid(reviewId) ? reviewId : Review.getNextId();
-    this.reviewId = Review.getNextId();
-    this.product = product;
-    this.user = user;
-    this.title = title;
-    this.content = content;
+  constructor(reviewId, date, detail, title, user) {
+    this.reviewId = isValid(reviewId) ? reviewId : Review.getNextId();
+    // this.reviewId = Review.getNextId();
     this.date = date;
-    this.comments = comments;
+    this.detail = detail;
+    this.title = title;
+    this.user = user;
   }
 
   // Comment.validate();
@@ -53,9 +51,9 @@ export class Review {
     // tempClass에 생성한 것을 넣습니다.
     // todo : tempClass대신에 instance로 바꾸기 helper : 소라님
 
-    // const pnoId = data[getIdByClass[storageEnum.Class.Review]];
-    const pnoId = "";
-    const { product, user, title, content, date, comments } = data;
-    return new Review(pnoId, product, user, title, content, date, comments);
+    const pnoId = data[getIdByClass[storageEnum.Class.Review]];
+    // const pnoId = "";
+    const { date, detail, title, user } = data;
+    return new Review(pnoId, date, detail, title, user);
   }
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { LocalStorageService, storageEnum } from "../../api/storageApi";
 
 const ReviewComponent = () => {
   const [formVisible, setFormVisible] = useState(false);
@@ -16,15 +17,20 @@ const ReviewComponent = () => {
   //로컬스토리지에서 초기 복원
   const [reviewList, setReviewList] = useState(() => {
     try {
-      const saved = localStorage.getItem("reviewList");
-      return saved ? JSON.parse(saved) : [];
+      // const saved = localStorage.getItem("reviewList");
+      const saved = LocalStorageService.findAll(storageEnum.Class.Review);
+      return saved !== storageEnum.Result.Failure ? saved : [];
     } catch {
       return [];
     }
   });
 
   useEffect(() => {
-    localStorage.setItem("reviewList", JSON.stringify(reviewList));
+    // localStorage.setItem("reviewList", JSON.stringify(reviewList));
+    LocalStorageService.initData(storageEnum.Class.Review, []);
+    reviewList.map((i) =>
+      LocalStorageService.saveByOne(storageEnum.Class.Review, i)
+    );
   }, [reviewList]);
 
   // 리뷰 텍스트 입력 핸들러
@@ -59,7 +65,8 @@ const ReviewComponent = () => {
     };
     setReviewList([...reviewList, newReview]);
     setReview({ title: "", user: "", detail: "" });
-    localStorage.setItem("reviewList", reviewList);
+    // localStorage.setItem("reviewList", reviewList);
+    LocalStorageService.initData(storageEnum.Class.Review, reviewList);
     setFormVisible(true);
 
     alert(`리뷰 작성 완료`);
@@ -109,100 +116,101 @@ const ReviewComponent = () => {
 
       {/* 목록 */}
       <div className="space-y-2">
-        {reviewList.map((review) => (
-          <div
-            key={review.reviewId}
-            className="border p-4 rounded-lg shadow-sm flex justify-between items-start"
-          >
-            {/* 왼쪽: 내용 / 리뷰 수정하기를 누르면 나오는 폼 */}
-            <div className="text-left w-full max-w-[70%]">
-              {editingId === review.reviewId ? (
-                <>
-                  <div className="flex gap-3 mb-2">
-                    <input
-                      className="w-1/2 p-2 border rounded-md"
-                      type="text"
-                      name="title"
-                      placeholder="제목"
-                      value={draft.title}
+        {reviewList &&
+          reviewList.map((review) => (
+            <div
+              key={review.reviewId}
+              className="border p-4 rounded-lg shadow-sm flex justify-between items-start"
+            >
+              {/* 왼쪽: 내용 / 리뷰 수정하기를 누르면 나오는 폼 */}
+              <div className="text-left w-full max-w-[70%]">
+                {editingId === review.reviewId ? (
+                  <>
+                    <div className="flex gap-3 mb-2">
+                      <input
+                        className="w-1/2 p-2 border rounded-md"
+                        type="text"
+                        name="title"
+                        placeholder="제목"
+                        value={draft.title}
+                        onChange={draftChangeHandler}
+                      />
+                      <input
+                        className="w-1/2 p-2 border rounded-md"
+                        type="text"
+                        name="user"
+                        placeholder="이름"
+                        value={draft.user}
+                        onChange={draftChangeHandler}
+                      />
+                    </div>
+                    <textarea
+                      className="w-full p-2 border rounded-md"
+                      name="detail"
+                      placeholder="리뷰 내용"
+                      value={draft.detail}
                       onChange={draftChangeHandler}
+                      style={{
+                        height: "120px",
+                        overflow: "auto",
+                        resize: "none",
+                      }}
                     />
-                    <input
-                      className="w-1/2 p-2 border rounded-md"
-                      type="text"
-                      name="user"
-                      placeholder="이름"
-                      value={draft.user}
-                      onChange={draftChangeHandler}
-                    />
-                  </div>
-                  <textarea
-                    className="w-full p-2 border rounded-md"
-                    name="detail"
-                    placeholder="리뷰 내용"
-                    value={draft.detail}
-                    onChange={draftChangeHandler}
-                    style={{
-                      height: "120px",
-                      overflow: "auto",
-                      resize: "none",
-                    }}
-                  />
-                  <p className="text-gray-500 mt-2">
-                    마지막 수정: {review.date}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="font-semibold">{review.title}</p>
-                  <p className="font-semibold">{review.user}</p>
-                  <p
-                    className="text-gray-700"
-                    style={{ whiteSpace: "pre-line" }}
-                  >
-                    {review.detail}
-                  </p>
-                  <p className="text-gray-700">{review.date}</p>
-                </>
-              )}
-            </div>
+                    <p className="text-gray-500 mt-2">
+                      마지막 수정: {review.date}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold">{review.title}</p>
+                    <p className="font-semibold">{review.user}</p>
+                    <p
+                      className="text-gray-700"
+                      style={{ whiteSpace: "pre-line" }}
+                    >
+                      {review.detail}
+                    </p>
+                    <p className="text-gray-700">{review.date}</p>
+                  </>
+                )}
+              </div>
 
-            {/* 오른쪽: 버튼 / 리뷰 수정한걸 저장,취소 하는 버튼 */}
-            <div className="flex flex-col space-y-2 ml-4">
-              {editingId === review.reviewId ? (
-                <>
-                  <button
-                    className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
-                    onClick={saveEdit}
-                  >
-                    저장
-                  </button>
-                  <button
-                    className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
-                    onClick={cancelEdit}
-                  >
-                    취소
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
-                    onClick={() => deleteHandler(review.reviewId)}
-                  >
-                    삭제하기
-                  </button>
-                  <button
-                    className="px-4 py-2 rounded bg-amber-500 text-white hover:bg-amber-400"
-                    onClick={() => startEdit(review)}
-                  >
-                    수정하기
-                  </button>
-                </>
-              )}
+              {/* 오른쪽: 버튼 / 리뷰 수정한걸 저장,취소 하는 버튼 */}
+              <div className="flex flex-col space-y-2 ml-4">
+                {editingId === review.reviewId ? (
+                  <>
+                    <button
+                      className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
+                      onClick={saveEdit}
+                    >
+                      저장
+                    </button>
+                    <button
+                      className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+                      onClick={cancelEdit}
+                    >
+                      취소
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                      onClick={() => deleteHandler(review.reviewId)}
+                    >
+                      삭제하기
+                    </button>
+                    <button
+                      className="px-4 py-2 rounded bg-amber-500 text-white hover:bg-amber-400"
+                      onClick={() => startEdit(review)}
+                    >
+                      수정하기
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* 리뷰 작성 버튼 */}

@@ -156,8 +156,8 @@ const APITestPage = () => {
       {products && products.map((item, idx) => {
         return <div>
           <h1>Product Data</h1>
-          <div key={item.id}>
-            <div>id : {item.id}</div>
+          <div key={item.productId}>
+            <div>id : {item.productId}</div>
             <div>name : {item.name}</div>
             <div>price : {item.price}</div>
             <div>image : {item.image}</div>
@@ -166,7 +166,7 @@ const APITestPage = () => {
           <br />
           <h1>Product Data Modify</h1>
           {editProducts && editProducts.length > 0 && (<div>
-            id : <input type="text" name="id" value={editProducts[idx].id} />
+            id : <input type="text" name="productId" value={editProducts[idx].productId} />
             name : <input type="text" name="name" value={editProducts[idx].name} onChange={e => {
               const updated = [...editProducts];
               updated[idx].name = e.target.value;
@@ -183,9 +183,9 @@ const APITestPage = () => {
               setEditProducts(updated);
             }} />
             <br />
-            <button onClick={() => updateOneData(storageEnum.Class.Product, item.id, editProducts[idx])}>수정하기</button>
+            <button onClick={() => updateOneData(storageEnum.Class.Product, item.productId, editProducts[idx])}>수정하기</button>
             <br />
-            <button onClick={() => deleteOneData(storageEnum.Class.Product, item.id)}>삭제하기</button>
+            <button onClick={() => deleteOneData(storageEnum.Class.Product, item.productId)}>삭제하기</button>
           </div>)}
 
         </div>

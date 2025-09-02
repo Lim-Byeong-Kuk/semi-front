@@ -14,15 +14,18 @@ const CartComponent = () => {
   //장바구니에 담긴 제품 이미지 클릭하면 해당 제품 상세페이지로 이동
   return (
     <div className="w-full font-sans p-5">
-      <div className="h-16 bg-gray-100 mb-5">Shopping Cart</div>
+      <div className="h-16 flex items-center justify-center font-bold mb-5">
+        Shopping Cart
+      </div>
 
-      <div className="h-20 bg-gray-200 mb-5">
-        <div className="text-sm p-3 space-y-1">
+      <div className="h-20 bg-gray-200 mb-5 flex items-center">
+        <div className="text-sm px-3 space-y-1">
           <h5>AKAN 회원만의 특별한 혜택을 놓치지 마세요!</h5>
           <h5>회원가입하고 구매시 할인 및 적립 리워드 받기</h5>
           <h5>회원가입 또는 로그인하기.</h5>
         </div>
       </div>
+
 
       <div className="flex flex-col md:flex-row gap-5">
         {/* Cart List */}

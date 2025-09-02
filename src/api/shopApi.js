@@ -15,5 +15,5 @@ export const getList = (pageParam) => {
 };
 
 export const getOne = (productId) => {
-  return phonecaseProducts.find((p) => p.id == productId);
+  return phonecaseProducts.find((p) => p.productId == productId);
 };

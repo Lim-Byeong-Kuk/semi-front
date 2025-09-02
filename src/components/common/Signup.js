@@ -1,6 +1,6 @@
 import React from "react";
 
-const SingupPage2 = () => {
+const Signup = () => {
   return (
     <div className="flex justify-center py-10 bg-gray-50 min-h-screen">
       <div className="w-full max-w-3xl bg-white p-8 rounded-lg shadow">
@@ -199,4 +199,4 @@ const SingupPage2 = () => {
   );
 };
 
-export default SingupPage2;
+export default Signup;

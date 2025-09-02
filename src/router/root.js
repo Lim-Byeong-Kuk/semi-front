@@ -10,7 +10,6 @@ import APITestPage from "../pages/APITestPage";
 import APITestPage2 from "../pages/APITestPage2";
 import LoginPage from "../pages/common/LoginPage";
 import SignupPage from "../pages/common/SignupPage";
-import SignupPage2 from "../pages/common/SingupPage2";
 
 const root = createBrowserRouter([
   {
@@ -48,10 +47,6 @@ const root = createBrowserRouter([
   {
     path: "signup",
     element: <SignupPage />,
-  },
-  {
-    path: "signup2",
-    element: <SignupPage2 />,
   },
 ]);
 

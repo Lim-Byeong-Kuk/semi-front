@@ -6,15 +6,15 @@ import { LocalStorageService } from "../../api/storageApi";
 /*
   이 페이지에서 완성될 데이터 -> 결제내역
   name:
-  address: {
-    postcode:
-    roadAddress:
-    detailAddress:
-  }
+  postcode:
+  roadAddress:
+  detailAddress:
   phoneNum:
   deleveryInstruction:
   paymentOption:
   상품가격에 대한 정보는 장바구니 또는 제품상세페이지에서 넘어와야 함
+  주문일자,
+  주문번호,
 
 
   TODO :

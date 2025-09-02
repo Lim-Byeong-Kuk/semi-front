@@ -11,6 +11,9 @@ import APITestPage2 from "../pages/APITestPage2";
 import LoginPage from "../pages/common/LoginPage";
 import SignupPage from "../pages/common/SignupPage";
 import QandAComponent from "../components/phonecase/QandAComponent";
+import OrderHistory from "../components/common/OrderHistory";
+import ProfileEdit from "../components/common/ProfileEdit";
+import MypageLayout from "../pages/common/MypageLayout";
 
 const root = createBrowserRouter([
   {
@@ -52,6 +55,20 @@ const root = createBrowserRouter([
   {
     path: "signup",
     element: <SignupPage />,
+  },
+  {
+    path: "mypage",
+    element: <MypageLayout />,
+    children: [
+      {
+        path: "orders",
+        element: <OrderHistory />,
+      },
+      {
+        path: "profile",
+        element: <ProfileEdit />,
+      },
+    ],
   },
 ]);
 

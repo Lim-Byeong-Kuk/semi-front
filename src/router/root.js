@@ -10,6 +10,7 @@ import APITestPage from "../pages/APITestPage";
 import APITestPage2 from "../pages/APITestPage2";
 import LoginPage from "../pages/common/LoginPage";
 import SignupPage from "../pages/common/SignupPage";
+import QandAComponent from "../components/phonecase/QandAComponent";
 
 const root = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const root = createBrowserRouter([
   {
     path: "apiTest2",
     element: <APITestPage2></APITestPage2>,
+  },
+  {
+    path: "qanda",
+    element: <QandAComponent></QandAComponent>,
   },
   {
     path: "login",

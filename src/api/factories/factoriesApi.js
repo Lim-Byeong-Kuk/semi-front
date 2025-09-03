@@ -25,7 +25,7 @@ export const storageEnum = {
 export const getIdByClass = {
   [storageEnum.Class.Product]: "productId",
   [storageEnum.Class.Cart]: "cartId",
-  [storageEnum.Class.User]: "userId",
+  [storageEnum.Class.User]: "id",
   [storageEnum.Class.Comment]: "commentId",
   [storageEnum.Class.Review]: "reviewId",
   [storageEnum.Class.QnA]: "qnaId",

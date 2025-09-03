@@ -175,6 +175,27 @@ const findAll = (className) => {
   return JSON.parse(getData);
 };
 
+// User안에 있는 Reivew를 반환합니다.
+const findAllByCollection = (collectionName) => {
+  // enum을 통한 컬렉션에 해당하는지 체크
+  if (!Object.values(storageEnum.Collection).includes(collectionName))
+    return storageEnum.Result.Failure;
+
+  // user를 탐색합니다.
+  // 유효성 검사를 합니다.
+  const getData = localStorage.getItem(storageEnum.Class.User);
+  if (!isValid(getData)) return storageEnum.Result.Failure;
+
+  const parseData = JSON.parse(getData);
+
+  const datas = parseData.map((data) => {
+    console.log(data);
+    return data[collectionName];
+  });
+
+  console.log("데이터 확인 ", datas);
+};
+
 // 데이터를 업데이트합니다.
 // save대신 updateById로 개명하였습니다.
 // 클래스이름, id, 새로운 데이터를 받아서 처리합니다.
@@ -242,7 +263,6 @@ const deleteById = (className, id) => {
 // 데이터 초기화 기능입니다.
 // 5MB라는 작은 용량이기도 하고,
 // 혹시나 터지는 경우를 방지합니다.
-
 // 전체 초기화
 const clearAllData = () => {
   localStorage.clear();
@@ -265,6 +285,7 @@ export const LocalStorageService = {
   saveByOne,
   findById,
   findAll,
+  findAllByCollection,
   updateById,
   deleteById,
 };

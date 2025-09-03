@@ -20,6 +20,13 @@ export const storageEnum = {
     Review: "review",
     QnA: "qna",
   },
+
+  Collection: {
+    Carts: "carts",
+    Reviews: "reviews",
+    QnAs: "qnas",
+    Products: "products",
+  },
 };
 
 export const getIdByClass = {

@@ -14,10 +14,9 @@ const ReviewComponent = () => {
     date: "",
   });
 
-  //로컬스토리지에서 초기 복원
+  // 리뷰 목록의 초기 상태를 로컬스토리지에서 가져옴
   const [reviewList, setReviewList] = useState(() => {
     try {
-      // const saved = localStorage.getItem("reviewList");
       const saved = LocalStorageService.findAll(storageEnum.Class.Review);
       return saved !== storageEnum.Result.Failure ? saved : [];
     } catch {
@@ -25,33 +24,28 @@ const ReviewComponent = () => {
     }
   });
 
+  // 리뷰 목록을 로컬스토리지에 저장
   useEffect(() => {
-    // localStorage.setItem("reviewList", JSON.stringify(reviewList));
     LocalStorageService.initData(storageEnum.Class.Review, []);
     reviewList.map((i) =>
       LocalStorageService.saveByOne(storageEnum.Class.Review, i)
     );
   }, [reviewList]);
 
-  // 리뷰 텍스트 입력 핸들러
-  const changeHandler = (e) => {
-    const { name, value } = e.target;
-    setReview({ ...review, [name]: value });
-  };
-  // 인라인 수정 폼 핸들러
-  const draftChangeHandler = (e) => {
-    const { name, value } = e.target;
-    console.log("뭐든 출력을 해주십셔, 출력이 되는지 볼거에요", name, value);
-    setDraft((prev) => ({ ...prev, [name]: value }));
+  //리뷰를 작성하기 전에 모든 입력 필드가 비어 있지 않은지 확인하는 함수
+  const validateFields = (data) => {
+    if (!data.title.trim() || !data.user.trim() || !data.detail.trim()) {
+      alert("제목/이름/내용을 모두 입력해 주세요");
+      return false;
+    } else {
+      return true;
+    }
   };
 
-  //리뷰 등록 handler
+  // 리뷰 등록 handler
   const reviewHandler = () => {
-    console.log("눈으로 보는게 빠릅니다", review);
-    if (!review.title.trim() || !review.user.trim() || !review.detail.trim()) {
-      alert("제목/이름/내용을 모두 입력해 주세요");
-      return;
-    }
+    if (!validateFields(review)) return;
+
     const generateId = () => {
       if (reviewList.length === 0) return 1;
       else return reviewList[reviewList.length - 1].reviewId + 1;
@@ -64,9 +58,9 @@ const ReviewComponent = () => {
       date: new Date().toLocaleString(),
     };
     setReviewList([...reviewList, newReview]);
+    LocalStorageService.saveByOne(storageEnum.Class.Review, reviewList);
     setReview({ title: "", user: "", detail: "" });
-    // localStorage.setItem("reviewList", reviewList);
-    LocalStorageService.initData(storageEnum.Class.Review, reviewList);
+
     setFormVisible(true);
 
     alert(`리뷰 작성 완료`);
@@ -75,9 +69,16 @@ const ReviewComponent = () => {
   // 리뷰 삭제 handler
   const deleteHandler = (id) => {
     alert(`삭제 완료`);
-    const update = reviewList.filter((review) => review.reviewId !== id);
-    setReviewList(update);
-    console.log("삭제 후 리뷰 : ", update);
+    const updateReview = LocalStorageService.deleteById(
+      storageEnum.Class.Review,
+      id
+    );
+    console.log(updateReview);
+    if (storageEnum.Result.Failure === updateReview) {
+      return;
+    } else {
+      setReviewList(LocalStorageService.findAll(storageEnum.Class.Review));
+    }
   };
 
   // 리뷰 수정 시작
@@ -88,10 +89,8 @@ const ReviewComponent = () => {
 
   // 인라인 수정 저장
   const saveEdit = () => {
-    if (!draft.title.trim() || !draft.user.trim() || !draft.detail.trim()) {
-      alert("제목/이름/내용을 모두 입력해 주세요");
-      return;
-    }
+    if (!validateFields(draft)) return;
+
     setReviewList((prev) =>
       prev.map((review) =>
         review.reviewId === editingId
@@ -108,6 +107,18 @@ const ReviewComponent = () => {
   const cancelEdit = () => {
     setEditingId(null);
     setDraft({ title: "", user: "", detail: "" });
+  };
+
+  // 리뷰 텍스트 입력 핸들러
+  const changeHandler = (e) => {
+    const { name, value } = e.target;
+    setReview({ ...review, [name]: value });
+  };
+
+  // 인라인 수정 핸들러
+  const draftChangeHandler = (e) => {
+    const { name, value } = e.target;
+    setDraft((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -218,7 +229,7 @@ const ReviewComponent = () => {
         <button
           className="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
           onClick={() => setFormVisible((v) => !v)}
-          disabled={editingId !== null} // 편집 중엔 작성 비활성화(선택)
+          disabled={editingId !== null} // 편집 중엔 작성 비활성화
         >
           리뷰 작성하기
         </button>

@@ -18,7 +18,7 @@ const PaginationNav = (props) => {
       {pagedData.hasPrevPageGroup && (
         <button
           onClick={() => moveToList({ page: pagedData.prevGroupLastPage })}
-          className="px-4 py-2 rounded border bg-white hover:bg-gray-100"
+          className="px-4 py-2 rounded border bg-white hover:!bg-gray-100"
           disabled={!pagedData.hasPrevPageGroup}
         >
           <SlArrowLeft />
@@ -29,7 +29,12 @@ const PaginationNav = (props) => {
         pageNumArr.map((page) => (
           <button
             key={page}
-            className="px-4 py-2 rounded border bg-white hover:bg-gray-100"
+            className={`px-4 py-2 rounded border
+            ${
+              page === pagedData.pageParam.page
+                ? "bg-gray-100 cursor-default hover:cursor-default"
+                : "bg-white hover:!bg-gray-200 hover:cursor-pointer"
+            }`}
             /* 임시로 {page:2 } 를 넣어 테스트 중 */
             onClick={() => moveToList({ page: page })}
           >
@@ -41,7 +46,7 @@ const PaginationNav = (props) => {
       {pagedData.hasNextPageGroup && (
         <button
           onClick={() => moveToList({ page: pagedData.nextGroupFirstPage })}
-          className="px-4 py-2 rounded border bg-white hover:bg-gray-100"
+          className="px-4 py-2 rounded border bg-white hover:!bg-gray-100"
           disabled={!pagedData.hasNextPageGroup}
         >
           <SlArrowRight />

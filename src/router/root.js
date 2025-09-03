@@ -6,14 +6,15 @@ import DetailPage from "../pages/phonecase/DetailPage";
 import CartPage from "../pages/common/CartPage";
 import CheckoutPage from "../pages/common/CheckoutPage";
 import HomePage from "../pages/HomePage";
-import APITestPage from "../pages/APITestPage";
-import APITestPage2 from "../pages/APITestPage2";
 import LoginPage from "../pages/common/LoginPage";
 import SignupPage from "../pages/common/SignupPage";
 import QandAComponent from "../components/phonecase/QandAComponent";
 import OrderHistory from "../components/common/OrderHistory";
 import ProfileEdit from "../components/common/ProfileEdit";
 import MypageLayout from "../pages/common/MypageLayout";
+import APITestPage from "../pages/APITestPage";
+import APITestPage2 from "../pages/APITestPage2";
+import APITestPage4 from "../pages/APITestPage4";
 
 const root = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ const root = createBrowserRouter([
   {
     path: "apiTest2",
     element: <APITestPage2></APITestPage2>,
+  },
+  {
+    path: "apiFinal",
+    element: <APITestPage4></APITestPage4>
   },
   {
     path: "qanda",

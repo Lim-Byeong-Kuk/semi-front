@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import NavBar from "./Navbar";
 import { LoginContext } from "../../api/context/LoginContext";
 
-const Header = () => {
+const Header = ({ isSticky }) => {
   const navigate = useNavigate();
   const { user, loginCheck, logout } = useContext(LoginContext);
 
@@ -50,7 +50,7 @@ const Header = () => {
           </nav>
         </div>
       </header>
-      <NavBar />
+      <NavBar isSticky={isSticky} />
     </>
   );
 };

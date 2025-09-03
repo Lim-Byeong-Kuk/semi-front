@@ -6,7 +6,7 @@ import Header from "../../components/headerfooter/Header";
 const DetailPage = () => {
   return (
     <div>
-      <Header />
+      <Header isSticky={false} />
       <DetailComponent />
       <Footer />
     </div>

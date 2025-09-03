@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { cartData } from "../../dummydata/cartData";
 import { useNavigate } from "react-router-dom";
+import { LocalStorageService, storageEnum } from "../../api/storageApi";
+import { userData } from "../../dummydata/userData";
 
 const CartComponent = () => {
   const navigate = useNavigate();
@@ -11,6 +13,50 @@ const CartComponent = () => {
   const moveToImgHandler = () => {
     navigate("/phonecase/27");
   };
+
+  useEffect(() => {
+    LocalStorageService.initData(storageEnum.Class.User, userData);
+    var data = LocalStorageService.findAllByCollection(
+      storageEnum.Collection.Reviews
+    );
+    console.log(data);
+
+    var data2 = {
+      ...data[3],
+      title: "제품좋아요22222",
+      detail: "제품 안좋아요",
+    };
+    console.log(data2);
+
+    // 업데이트
+    // LocalStorageService.updateCollection(
+    //   storageEnum.Collection.Reviews,
+    //   data2,
+    //   storageEnum.Class.Review
+    // );
+
+    // 저장
+    // LocalStorageService.saveCollectionOne(
+    //   storageEnum.Collection.Reviews,
+    //   data2,
+    //   storageEnum.Class.Review
+    // );
+
+    // 삭제
+    // LocalStorageService.deleteByCollection(
+    //   storageEnum.Class.Review,
+    //   storageEnum.Collection.Reviews,
+    //   "sora1228",
+    //   4
+    // );
+
+    // 읽기
+    data = LocalStorageService.findAllByCollection(
+      storageEnum.Collection.Reviews
+    );
+    console.log(data);
+  });
+
   //장바구니에 담긴 제품 이미지 클릭하면 해당 제품 상세페이지로 이동
   return (
     <div className="w-full font-sans p-5">
@@ -25,7 +71,6 @@ const CartComponent = () => {
           <h5>회원가입 또는 로그인하기.</h5>
         </div>
       </div>
-
 
       <div className="flex flex-col md:flex-row gap-5">
         {/* Cart List */}

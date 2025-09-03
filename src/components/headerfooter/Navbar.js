@@ -3,7 +3,7 @@ import Header from "./Header";
 import { FaUser, FaShoppingCart, FaBars } from "react-icons/fa"; // FaBars 아이콘 추가
 import { useNavigate } from "react-router-dom";
 
-const NavBar = () => {
+const NavBar = ({ isSticky = true }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // 메뉴 상태 관리
   const navigate = useNavigate();
 
@@ -29,7 +29,11 @@ const NavBar = () => {
   ];
   return (
     <>
-      <nav className="w-full bg-gray-100 sticky top-0 z-50">
+      <nav
+        className={`w-full bg-gray-100 top-0 z-50 ${
+          isSticky ? "sticky top-0" : ""
+        }`}
+      >
         <div className="relative max-w-7xl mx-auto h-8 leading-8 px-4 flex justify-between items-center">
           {/* 모바일 햄버거 메뉴 버튼 - md 사이즈에서 숨김 */}
           <button className="md:hidden" onClick={toggleMenu}>

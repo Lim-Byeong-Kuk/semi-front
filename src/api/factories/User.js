@@ -40,9 +40,9 @@ export class User {
     // 클래스를 생성자를 통해 생성해줍니다.
     // tempClass에 생성한 것을 넣습니다.
     // todo : tempClass대신에 instance로 바꾸기 helper : 소라님
-    const { id, pwd } = data;
+    const { userId, id, pwd } = data;
     // const pnoId = data[getIdByClass[className]];
-    const pnoId = "";
-    return new User(pnoId, id, pwd);
+    // const pnoId = "";
+    return new User(userId, id, pwd);
   }
 }

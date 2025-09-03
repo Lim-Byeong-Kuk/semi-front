@@ -1,57 +1,72 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { LocalStorageService, storageEnum } from "../../api/storageApi";
+import { userData } from "../../dummydata/userData";
+import { useParams } from "react-router-dom";
+import { LoginContext } from "../../api/context/LoginContext";
 
 const ReviewComponent = () => {
+  const { user, loginCheck } = useContext(LoginContext);
+
   const [formVisible, setFormVisible] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [draft, setDraft] = useState({ title: "", user: "", detail: "" });
-
+  const [draft, setDraft] = useState({ title: "", id: "", detail: "" });
+  const { productId } = useParams();
   const [review, setReview] = useState({
     reviewId: 0,
     title: "",
-    user: "",
+    id: "",
     detail: "",
     date: "",
   });
 
-  //로컬스토리지에서 초기 복원
-  const [reviewList, setReviewList] = useState(() => {
-    try {
-      // const saved = localStorage.getItem("reviewList");
-      const saved = LocalStorageService.findAll(storageEnum.Class.Review);
-      return saved !== storageEnum.Result.Failure ? saved : [];
-    } catch {
-      return [];
-    }
-  });
+  // 리뷰 목록의 초기 상태를 로컬스토리지에서 가져옴
+  const [reviewList, setReviewList] = useState([]);
 
   useEffect(() => {
-    // localStorage.setItem("reviewList", JSON.stringify(reviewList));
-    LocalStorageService.initData(storageEnum.Class.Review, []);
-    reviewList.map((i) =>
-      LocalStorageService.saveByOne(storageEnum.Class.Review, i)
-    );
-  }, [reviewList]);
+    loginCheck();
 
-  // 리뷰 텍스트 입력 핸들러
-  const changeHandler = (e) => {
-    const { name, value } = e.target;
-    setReview({ ...review, [name]: value });
-  };
-  // 인라인 수정 폼 핸들러
-  const draftChangeHandler = (e) => {
-    const { name, value } = e.target;
-    console.log("뭐든 출력을 해주십셔, 출력이 되는지 볼거에요", name, value);
-    setDraft((prev) => ({ ...prev, [name]: value }));
-  };
+    console.log("productId : ", productId);
+    console.log(typeof productId);
+    const reviewsByProductId = userData
+      .map((user) => user.reviews)
+      .flat(2)
+      .filter((review) => review.productId === parseInt(productId));
+    console.log(reviewsByProductId);
 
-  //리뷰 등록 handler
-  const reviewHandler = () => {
-    console.log("눈으로 보는게 빠릅니다", review);
-    if (!review.title.trim() || !review.user.trim() || !review.detail.trim()) {
+    setReviewList(reviewsByProductId);
+  }, []);
+
+  // const [reviewList, setReviewList] = useState(() => {
+  //   try {
+  //     const saved = LocalStorageService.findAll(storageEnum.Class.Review);
+  //     return saved !== storageEnum.Result.Failure ? saved : [];
+  //   } catch {
+  //     return [];
+  //   }
+  // });
+
+  // 리뷰 목록을 로컬스토리지에 저장
+  // useEffect(() => {
+  //   LocalStorageService.initData(storageEnum.Class.Review, []);
+  //   reviewList.map((i) =>
+  //     LocalStorageService.saveByOne(storageEnum.Class.Review, i)
+  //   );
+  // }, [reviewList]);
+
+  //리뷰를 작성하기 전에 모든 입력 필드가 비어 있지 않은지 확인하는 함수
+  const validateFields = (data) => {
+    if (!data.title.trim() || !data.id.trim() || !data.detail.trim()) {
       alert("제목/이름/내용을 모두 입력해 주세요");
-      return;
+      return false;
+    } else {
+      return true;
     }
+  };
+
+  // 리뷰 등록 handler
+  const reviewHandler = () => {
+    if (!validateFields(review)) return;
+
     const generateId = () => {
       if (reviewList.length === 0) return 1;
       else return reviewList[reviewList.length - 1].reviewId + 1;
@@ -59,14 +74,14 @@ const ReviewComponent = () => {
     const newReview = {
       reviewId: generateId(),
       title: review.title,
-      user: review.user,
+      id: review.id,
       detail: review.detail,
       date: new Date().toLocaleString(),
     };
     setReviewList([...reviewList, newReview]);
-    setReview({ title: "", user: "", detail: "" });
-    // localStorage.setItem("reviewList", reviewList);
-    LocalStorageService.initData(storageEnum.Class.Review, reviewList);
+    LocalStorageService.saveByOne(storageEnum.Class.Review, reviewList);
+    setReview({ title: "", id: "", detail: "" });
+
     setFormVisible(true);
 
     alert(`리뷰 작성 완료`);
@@ -75,23 +90,28 @@ const ReviewComponent = () => {
   // 리뷰 삭제 handler
   const deleteHandler = (id) => {
     alert(`삭제 완료`);
-    const update = reviewList.filter((review) => review.reviewId !== id);
-    setReviewList(update);
-    console.log("삭제 후 리뷰 : ", update);
+    const updateReview = LocalStorageService.deleteById(
+      storageEnum.Class.Review,
+      id
+    );
+    console.log(updateReview);
+    if (storageEnum.Result.Failure === updateReview) {
+      return;
+    } else {
+      setReviewList(LocalStorageService.findAll(storageEnum.Class.Review));
+    }
   };
 
   // 리뷰 수정 시작
   const startEdit = (r) => {
     setEditingId(r.reviewId);
-    setDraft({ title: r.title, user: r.user, detail: r.detail });
+    setDraft({ title: r.title, id: r.id, detail: r.detail });
   };
 
   // 인라인 수정 저장
   const saveEdit = () => {
-    if (!draft.title.trim() || !draft.user.trim() || !draft.detail.trim()) {
-      alert("제목/이름/내용을 모두 입력해 주세요");
-      return;
-    }
+    if (!validateFields(draft)) return;
+
     setReviewList((prev) =>
       prev.map((review) =>
         review.reviewId === editingId
@@ -101,13 +121,25 @@ const ReviewComponent = () => {
     );
     alert("리뷰 수정 완료");
     setEditingId(null);
-    setDraft({ title: "", user: "", detail: "" });
+    setDraft({ title: "", id: "", detail: "" });
   };
 
   // 인라인 수정 취소
   const cancelEdit = () => {
     setEditingId(null);
-    setDraft({ title: "", user: "", detail: "" });
+    setDraft({ title: "", id: "", detail: "" });
+  };
+
+  // 리뷰 텍스트 입력 핸들러
+  const changeHandler = (e) => {
+    const { name, value } = e.target;
+    setReview({ ...review, [name]: value });
+  };
+
+  // 인라인 수정 핸들러
+  const draftChangeHandler = (e) => {
+    const { name, value } = e.target;
+    setDraft((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -138,9 +170,9 @@ const ReviewComponent = () => {
                       <input
                         className="w-1/2 p-2 border rounded-md"
                         type="text"
-                        name="user"
+                        name="id"
                         placeholder="이름"
-                        value={draft.user}
+                        value={draft.id}
                         onChange={draftChangeHandler}
                       />
                     </div>
@@ -163,7 +195,7 @@ const ReviewComponent = () => {
                 ) : (
                   <>
                     <p className="font-semibold">{review.title}</p>
-                    <p className="font-semibold">{review.user}</p>
+                    <p className="font-semibold">{review.id}</p>
                     <p
                       className="text-gray-700"
                       style={{ whiteSpace: "pre-line" }}
@@ -218,7 +250,7 @@ const ReviewComponent = () => {
         <button
           className="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
           onClick={() => setFormVisible((v) => !v)}
-          disabled={editingId !== null} // 편집 중엔 작성 비활성화(선택)
+          disabled={editingId !== null} // 편집 중엔 작성 비활성화
         >
           리뷰 작성하기
         </button>
@@ -240,8 +272,8 @@ const ReviewComponent = () => {
               className="w-full p-2 border rounded-md"
               type="text"
               placeholder="이름"
-              name="user"
-              value={review.user}
+              name="id"
+              value={review.id}
               onChange={changeHandler}
             />
           </div>
@@ -265,7 +297,7 @@ const ReviewComponent = () => {
             <button
               className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
               onClick={() => {
-                setReview({ title: "", user: "", detail: "" });
+                setReview({ title: "", id: "", detail: "" });
                 setFormVisible(false);
               }}
             >

@@ -56,7 +56,7 @@ const findAllByPageParam = (pageParam) => {
 };
 
 export const createPagiNationData = (pageParam) => {
-  //pageParam, productList, totalCnt 를 이용해
+  //pageParam, productList, totalCnt 를 이용해 페이지네이션을 위해 필요한 정보 생성(createPageRes 가 만들어줌)
   const productList = findAllByPageParam(pageParam);
   const totalDataCnt = phonecaseProducts.length;
   const pagiNationData = createPageRes(pageParam, productList, totalDataCnt);

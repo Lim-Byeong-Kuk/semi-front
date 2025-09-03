@@ -3,9 +3,11 @@ import { Product } from "./Product";
 import { User } from "./User";
 
 export class Review {
-  constructor(reviewId, date, detail, title, user) {
+  constructor(reviewId, productId, id, date, detail, title, user) {
     this.reviewId = isValid(reviewId) ? reviewId : Review.getNextId();
     // this.reviewId = Review.getNextId();
+    this.productId = productId;
+    this.id = id;
     this.date = date;
     this.detail = detail;
     this.title = title;
@@ -53,7 +55,7 @@ export class Review {
 
     const pnoId = data[getIdByClass[storageEnum.Class.Review]];
     // const pnoId = "";
-    const { date, detail, title, user } = data;
-    return new Review(pnoId, date, detail, title, user);
+    const { date, productId, id, detail, title, user } = data;
+    return new Review(pnoId, productId, id, date, detail, title, user);
   }
 }

@@ -128,6 +128,60 @@ const saveByOne = (className, newData) => {
   return storageEnum.Result.Success;
 };
 
+// 컬렉션 이름을 받습니다.
+// 데이터를 한 개 추가하는 기능입니다.
+// 데이터를 단일 객체로 받습니다.
+const saveCollectionOne = (collectionName, newData, className) => {
+  // enum을 통한 컬렉션에 해당하는지 체크
+  if (!Object.values(storageEnum.Collection).includes(collectionName))
+    return storageEnum.Result.Failure;
+
+  // user를 불러옵니다.
+  // 유효성 검사를 합니다.
+  const getData = localStorage.getItem(storageEnum.Class.User);
+  if (!isValid(getData)) return storageEnum.Result.Failure;
+
+  // User데이터를 파싱합니다.
+  const parseData = JSON.parse(getData);
+
+  const cnt = 0;
+  // 유저들
+  const ids = parseData
+    .map((user) => user[collectionName])
+    .flat(2)
+    .map((review) => review[getIdByClass[className]]);
+
+  const maxId = Math.max(...ids);
+
+  // User안에 collectionName을 불러옵니다.
+  // 해당 User를 찾은 것입니다.
+  const findCollection = parseData.find((data) => data.id === newData.id);
+  const collection = findCollection[collectionName];
+
+  // 혹시나 데이터 검사
+  if (isValid(collection) === false) return storageEnum.Result.Failure;
+  const entity = createEntity(className, {
+    ...newData,
+    [getIdByClass[className]]: maxId + 1,
+  });
+
+  // 데이터 삽입
+  collection.push(entity);
+  console.log(collection);
+
+  const updateData = parseData.map((data) => {
+    var temp = null;
+    if (data.id === newData.id) {
+      temp = { ...data, [collectionName]: data[collectionName] };
+      console.log("확인", temp);
+      return temp;
+    }
+    return data;
+  });
+
+  localStorage.setItem(storageEnum.Class.User, JSON.stringify(updateData));
+};
+
 // 반환 타입은 json 형태로 반환합니다.
 // 클래스 이름과 id를 통해 데이터를 1개 반환받습니다.
 const findById = (className, id) => {
@@ -189,11 +243,10 @@ const findAllByCollection = (collectionName) => {
   const parseData = JSON.parse(getData);
 
   const datas = parseData.map((data) => {
-    console.log(data);
     return data[collectionName];
   });
 
-  console.log("데이터 확인 ", datas);
+  return datas.flat(2);
 };
 
 // 데이터를 업데이트합니다.
@@ -225,6 +278,42 @@ const updateById = (className, id, newData) => {
 
   // 데이터를 저장소에 전달합니다.
   localStorage.setItem(className, JSON.stringify(updatedData));
+  return storageEnum.Result.Success;
+};
+
+const updateCollection = (collectionName, newData, className) => {
+  // enum을 통한 컬렉션에 해당하는지 체크
+  if (!Object.values(storageEnum.Collection).includes(collectionName))
+    return storageEnum.Result.Failure;
+
+  // user를 탐색합니다.
+  // 유효성 검사를 합니다.
+  const getData = localStorage.getItem(storageEnum.Class.User);
+  if (!isValid(getData)) return storageEnum.Result.Failure;
+
+  // user데이터 가져오기
+  const parseData = JSON.parse(getData);
+
+  // 조건식이 빠짐
+  const anotherReviews = parseData
+    .filter((user) => user.id === newData.id)
+    .map((user) => user.reviews)
+    .flat(2)
+    .filter(
+      (review) =>
+        review[getIdByClass[className]] !== newData[getIdByClass[className]]
+    );
+  const updatedReviews = [...anotherReviews, newData];
+  const another = parseData.filter((user) => user.id !== newData.id);
+  const updatedUser = parseData.find((user) => user.id === newData.id);
+  const result = [
+    ...another,
+    { ...updatedUser, [collectionName]: updatedReviews },
+  ];
+
+  console.log(result);
+  localStorage.setItem(storageEnum.Class.User, JSON.stringify(result));
+
   return storageEnum.Result.Success;
 };
 
@@ -260,6 +349,8 @@ const deleteById = (className, id) => {
   return storageEnum.Result.Success;
 };
 
+const deleteByCollection = (className, collectionName) => {};
+
 // 데이터 초기화 기능입니다.
 // 5MB라는 작은 용량이기도 하고,
 // 혹시나 터지는 경우를 방지합니다.
@@ -283,9 +374,12 @@ export const LocalStorageService = {
   initData,
   save,
   saveByOne,
+  saveCollectionOne,
   findById,
   findAll,
   findAllByCollection,
+  updateCollection,
   updateById,
   deleteById,
+  deleteByCollection,
 };

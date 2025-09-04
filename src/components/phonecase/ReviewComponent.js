@@ -18,40 +18,31 @@ const ReviewComponent = () => {
     detail: "",
     date: "",
   });
+  const [isChange, setChange] = useState(false);
 
   // 리뷰 목록의 초기 상태를 로컬스토리지에서 가져옴
   const [reviewList, setReviewList] = useState([]);
 
   useEffect(() => {
     loginCheck();
+    // reviewInit(); 리뷰더미 데이터 초기세팅하는 용도
+  }, []);
 
-    console.log("productId : ", productId);
-    console.log(typeof productId);
-    const reviewsByProductId = userData
+  useEffect(() => {
+    const saved = LocalStorageService.findAll(storageEnum.Class.Review).filter(
+      (rev) => parseInt(rev.productId) === parseInt(productId)
+    );
+    setReviewList(saved);
+  }, [isChange]);
+
+  const reviewInit = () => {
+    const tempData = userData
       .map((user) => user.reviews)
       .flat(2)
       .filter((review) => review.productId === parseInt(productId));
-    console.log(reviewsByProductId);
-
-    setReviewList(reviewsByProductId);
-  }, []);
-
-  // const [reviewList, setReviewList] = useState(() => {
-  //   try {
-  //     const saved = LocalStorageService.findAll(storageEnum.Class.Review);
-  //     return saved !== storageEnum.Result.Failure ? saved : [];
-  //   } catch {
-  //     return [];
-  //   }
-  // });
-
-  // 리뷰 목록을 로컬스토리지에 저장
-  // useEffect(() => {
-  //   LocalStorageService.initData(storageEnum.Class.Review, []);
-  //   reviewList.map((i) =>
-  //     LocalStorageService.saveByOne(storageEnum.Class.Review, i)
-  //   );
-  // }, [reviewList]);
+    setReviewList(tempData);
+    LocalStorageService.initData(storageEnum.Class.Review, tempData);
+  };
 
   //리뷰를 작성하기 전에 모든 입력 필드가 비어 있지 않은지 확인하는 함수
   const validateFields = (data) => {
@@ -68,23 +59,29 @@ const ReviewComponent = () => {
     if (!validateFields(review)) return;
 
     const generateId = () => {
-      if (reviewList.length === 0) return 1;
-      else return reviewList[reviewList.length - 1].reviewId + 1;
+      const tempTest = LocalStorageService.findAllByCollection(
+        storageEnum.Collection.Reviews
+      );
+      if (tempTest.length === 0) return 1;
+      else return tempTest[tempTest.length - 1].reviewId + 1;
     };
+    console.log("니가 똑바로 나오는지 볼거야 ", generateId());
     const newReview = {
       reviewId: generateId(),
-      title: review.title,
+      productId: productId,
       id: review.id,
+      title: review.title,
       detail: review.detail,
       date: new Date().toLocaleString(),
     };
     setReviewList([...reviewList, newReview]);
-    LocalStorageService.saveByOne(storageEnum.Class.Review, reviewList);
+    LocalStorageService.saveByOne(storageEnum.Class.Review, newReview);
     setReview({ title: "", id: "", detail: "" });
 
     setFormVisible(true);
 
     alert(`리뷰 작성 완료`);
+    setChange(!isChange);
   };
 
   // 리뷰 삭제 handler
@@ -100,6 +97,7 @@ const ReviewComponent = () => {
     } else {
       setReviewList(LocalStorageService.findAll(storageEnum.Class.Review));
     }
+    setChange(!isChange);
   };
 
   // 리뷰 수정 시작
@@ -109,19 +107,16 @@ const ReviewComponent = () => {
   };
 
   // 인라인 수정 저장
-  const saveEdit = () => {
+  const saveEdit = (editId) => {
     if (!validateFields(draft)) return;
+    let reviewObj = reviewList.find((rev) => rev.reviewId === editId);
+    reviewObj = { ...reviewObj, ...draft, date: new Date().toLocaleString() };
+    LocalStorageService.updateById(storageEnum.Class.Review, editId, reviewObj);
 
-    setReviewList((prev) =>
-      prev.map((review) =>
-        review.reviewId === editingId
-          ? { ...review, ...draft, date: new Date().toLocaleString() }
-          : review
-      )
-    );
     alert("리뷰 수정 완료");
     setEditingId(null);
     setDraft({ title: "", id: "", detail: "" });
+    setChange(!isChange);
   };
 
   // 인라인 수정 취소
@@ -213,7 +208,7 @@ const ReviewComponent = () => {
                   <>
                     <button
                       className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
-                      onClick={saveEdit}
+                      onClick={() => saveEdit(editingId)}
                     >
                       저장
                     </button>

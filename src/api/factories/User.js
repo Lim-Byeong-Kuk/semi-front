@@ -4,12 +4,13 @@ import { storageEnum, isValid } from "./factoriesApi";
 export class User {
   // 생성자 입니다.
   // 다음 userId를 탐색하여 부여합니다.
-  constructor(userId, id, pwd, carts, reviews) {
+  constructor(userId, id, pwd, carts, reviews, qnas) {
     this.userId = isValid(userId) ? userId : User.getNextId();
     this.id = id;
     this.pwd = pwd;
     this.carts = carts;
     this.reviews = reviews;
+    this.qnas = qnas;
   }
 
   // User.validate();
@@ -42,9 +43,9 @@ export class User {
     // 클래스를 생성자를 통해 생성해줍니다.
     // tempClass에 생성한 것을 넣습니다.
     // todo : tempClass대신에 instance로 바꾸기 helper : 소라님
-    const { userId, id, pwd, carts, reviews } = data;
+    const { userId, id, pwd, carts, reviews, qnas } = data;
     // const pnoId = data[getIdByClass[className]];
     // const pnoId = "";
-    return new User(userId, id, pwd, carts, reviews);
+    return new User(userId, id, pwd, carts, reviews, qnas);
   }
 }

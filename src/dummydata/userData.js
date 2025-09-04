@@ -60,6 +60,8 @@ export const userData = [
         date: "2025. 9. 3. 오후 2:11:55",
       },
     ],
+    qnas:[],
+    
   },
   {
     userId: 2,
@@ -104,15 +106,49 @@ export const userData = [
         date: "2025. 9. 3. 오후 1:10:55",
       },
     ],
+    qnas:[],
   },
-  { userId: 3, id: "dbfk", pwd: 1234, carts: [], reviews: [] },
+  // qnaId, title, content, writer, date,images, href
+  { userId: 3, id: "dbfk", pwd: 1234, carts: [{
+        cartId: 9,
+        productId: 1,
+        id: "sora1228",
+        name: "나만의 커스텀 방탄케이스",
+        quantity: 1,
+        singlePrice: "9000",
+        image:
+          "https://akan.co.kr/upload/products/NEVER/AN9999/thumb-single-graybg.webp",
+      }], reviews: [], qnas: [{
+    qnaId: 1,
+    id:"dbfk",
+    title: "중순까지 배달 가능한가요?",
+    content: "가능하면 날짜 맞춰 보내주세요!",
+    writer: "조형우",
+    date: "2025.09.01",
+    images: [
+      "https://akan.co.kr/upload/products/NEVER/KYJN5004/thumb-single-graybg.webp",
+    ],
+    href: "#",
+  },
+  {
+    qnaId: 2,
+    id:"dbfk",
+    title: "언제 배송 되나요?",
+    content: "주문번호 12345 입니다.",
+    writer: "김유라",
+    date: "2025.09.01",
+    images: [
+      "https://akan.co.kr/upload/products/MDBUMP/AQ9999/thumb-single-graybg.webp",
+    ],
+    href: "#",
+  },] },
   {
     userId: 4,
     id: "bk",
     pwd: 1234,
     carts: [
       {
-        cartId: 1,
+        cartId: 6,
         productId: 1,
         id: "bk",
         name: "나만의 커스텀 방탄케이스",
@@ -122,7 +158,7 @@ export const userData = [
           "https://akan.co.kr/upload/products/NEVER/AN9999/thumb-single-graybg.webp",
       },
       {
-        cartId: 2,
+        cartId: 7,
         productId: 2,
         id: "bk",
         name: "그려용 커스텀 방탄케이스",
@@ -131,7 +167,7 @@ export const userData = [
         img: "https://akan.co.kr/upload/products/NEVER/KN0284/thumb-single-graybg.webp",
       },
       {
-        cartId: 3,
+        cartId: 8,
         productId: 121,
         id: "bk",
         name: "노을토끼 맥세이프 커스텀 카드지갑",
@@ -151,6 +187,7 @@ export const userData = [
         date: "2025. 9. 3. 오후 2:14:55",
       },
     ],
+    qnas:[],
     paymentrecords: [{}, {}, {}],
   },
 ];

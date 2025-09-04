@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FaPhotoVideo } from "react-icons/fa";
 import { TbMessageCircleQuestion } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { LocalStorageService, storageEnum } from "../../api/storageApi";
 import { IoMdArrowBack } from "react-icons/io";
 import { Link } from "react-router-dom";
-
+import { LoginContext } from "../../api/context/LoginContext";
 // 예시 데이터
 const INITIAL_ITEMS = [
   {
@@ -57,10 +57,13 @@ export default function QandAComponent() {
   const [isDetailOpen, setDetailOpen] = useState(false);
   const [form, setForm] = useState({ title: "", content: "", writer: "" });
   const [selectedItem, setSelectedItem] = useState(null);
+  const {user, loginCheck} = useContext(LoginContext);
 
   // 저장소 복원 (+ number 제거 정규화)
   const [items, setItems] = useState(() => {
-    const raw = LocalStorageService?.findAll?.(storageEnum.Class.QnA) || [];
+    const raw = LocalStorageService.findAllByCollection(storageEnum.Collection.QnAs);
+    console.log(raw);
+    // const raw = LocalStorageService?.findAll?.(storageEnum.Class.QnA) || [];
     const data =
       Array.isArray(raw) && raw.length ? raw.slice() : INITIAL_ITEMS.slice();
     data.sort((a, b) => (b.qnaId ?? 0) - (a.qnaId ?? 0));
@@ -78,6 +81,8 @@ export default function QandAComponent() {
 
   // ESC 닫기
   useEffect(() => {
+    loginCheck();
+    console.log(user);
     const onKey = (e) => {
       if (e.key === "Escape") {
         setAskOpen(false);
@@ -143,6 +148,7 @@ export default function QandAComponent() {
 
     const newItem = {
       qnaId: nextId,
+      id:user.id,
       title,
       content,
       writer,
@@ -152,7 +158,8 @@ export default function QandAComponent() {
     };
 
     try {
-      LocalStorageService?.saveByOne?.(storageEnum.Class.QnA, newItem);
+      // LocalStorageService?.saveByOne?.(storageEnum.Class.QnA, newItem);
+      LocalStorageService.saveCollectionOne(storageEnum.Class.QnA, storageEnum.Collection.QnAs, newItem);
     } catch (e) {
       console.warn("LocalStorage 저장 실패:", e);
     }

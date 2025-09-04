@@ -131,7 +131,7 @@ const saveByOne = (className, newData) => {
 // 컬렉션 이름을 받습니다.
 // 데이터를 한 개 추가하는 기능입니다.
 // 데이터를 단일 객체로 받습니다.
-const saveCollectionOne = (className, collectionName, newData, ) => {
+const saveCollectionOne = (className, collectionName, newData) => {
   // enum을 통한 컬렉션에 해당하는지 체크
   if (!Object.values(storageEnum.Collection).includes(collectionName))
     return storageEnum.Result.Failure;
@@ -249,7 +249,6 @@ const findAllByCollection = (collectionName) => {
   return datas.flat(2);
 };
 
-
 // 데이터를 업데이트합니다.
 // save대신 updateById로 개명하였습니다.
 // 클래스이름, id, 새로운 데이터를 받아서 처리합니다.
@@ -282,7 +281,7 @@ const updateById = (className, id, newData) => {
   return storageEnum.Result.Success;
 };
 
-const updateCollection = (className, collectionName, newData, ) => {
+const updateCollection = (className, collectionName, newData) => {
   // enum을 통한 컬렉션에 해당하는지 체크
   if (!Object.values(storageEnum.Collection).includes(collectionName))
     return storageEnum.Result.Failure;
@@ -345,23 +344,25 @@ const deleteById = (className, id) => {
 
 // 비공개 용도입니다.
 // collection의 id를 통해 해당 배열들을 반환합니다.
-const findUserCollectionId = (collectionName, className ,collectionId) => {
+const findUserCollectionId = (collectionName, className, collectionId) => {
   // collectionId를 통해 데이터를 뽑아냅니다.
-  const findCollection = findAllByCollection(collectionName).find(data => String(data[getIdByClass[className]]) === String(collectionId));
-  if (isValid(findCollection) === false)
-    return storageEnum.Result.Failure;
+  const findCollection = findAllByCollection(collectionName).find(
+    (data) => String(data[getIdByClass[className]]) === String(collectionId)
+  );
+  if (isValid(findCollection) === false) return storageEnum.Result.Failure;
 
   // 콜렉션의 객체 형태
-  // 위의 정보를 활용해서 id를 활용해서 user를 찾습니다. 
-  const findUser = findAll(storageEnum.Class.User).find(user => user.id === findCollection.id);
+  // 위의 정보를 활용해서 id를 활용해서 user를 찾습니다.
+  const findUser = findAll(storageEnum.Class.User).find(
+    (user) => user.id === findCollection.id
+  );
 
-  if (isValid(findUser) === false)
-    return storageEnum.Result.Failure;
+  if (isValid(findUser) === false) return storageEnum.Result.Failure;
 
   return findUser;
-}
+};
 
-const deleteByCollection = (className, collectionName, id ,dataId) => {
+const deleteByCollection = (className, collectionName, id, dataId) => {
   // user찾기
   // const findUser = findUserCollectionId(collectionName,className, dataId);
 
@@ -378,7 +379,7 @@ const deleteByCollection = (className, collectionName, id ,dataId) => {
   const oneDeletedReviews = parseData
     .map((user) => user.reviews)
     .flat(2)
-    .filter(review => review.id === id)
+    .filter((review) => review.id === id)
     .filter((review) => review[getIdByClass[className]] !== dataId);
   const another = parseData.filter((user) => user.id !== id);
   const updatedUser = parseData.find((user) => user.id === id);

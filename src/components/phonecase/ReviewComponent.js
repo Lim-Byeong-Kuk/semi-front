@@ -6,11 +6,11 @@ import { LoginContext } from "../../api/context/LoginContext";
 
 const ReviewComponent = () => {
   const { user, loginCheck } = useContext(LoginContext);
-
   const [formVisible, setFormVisible] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState({ title: "", id: "", detail: "" });
   const { productId } = useParams();
+
   const [review, setReview] = useState({
     reviewId: 0,
     title: "",
@@ -18,22 +18,43 @@ const ReviewComponent = () => {
     detail: "",
     date: "",
   });
+
   const [isChange, setChange] = useState(false);
 
   // 리뷰 목록의 초기 상태를 로컬스토리지에서 가져옴
-  const [reviewList, setReviewList] = useState([]);
-
-  useEffect(() => {
-    loginCheck();
-    // reviewInit(); 리뷰더미 데이터 초기세팅하는 용도
-  }, []);
-
-  useEffect(() => {
-    const saved = LocalStorageService.findAll(storageEnum.Class.Review).filter(
-      (rev) => parseInt(rev.productId) === parseInt(productId)
+  const [reviewList, setReviewList] = useState(() => {
+    const allUserReviews = LocalStorageService.findAllByCollection(
+      storageEnum.Collection.Reviews
     );
-    setReviewList(saved);
-  }, [isChange]);
+    const productReviews = allUserReviews.filter(
+      (review) => review.productId === parseInt(productId)
+    );
+    return productReviews;
+  });
+
+  // 수정된 버전
+  useEffect(() => {
+    // productId가 변경될 때마다 리뷰 목록을 다시 불러옴
+    updateReviewList();
+  }, [productId]);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      updateReviewList();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []); // isChange 상태를 사용하지 않고 storage 이벤트만 감지
+
+  // useEffect(() => {
+  // const saved = LocalStorageService.findAll(storageEnum.Class.Review).filter(
+  //   (rev) => parseInt(rev.productId) === parseInt(productId)
+  // );
+  // setReviewList(saved);
+  // }, [isChange]);
 
   const reviewInit = () => {
     const tempData = userData
@@ -42,6 +63,16 @@ const ReviewComponent = () => {
       .filter((review) => review.productId === parseInt(productId));
     setReviewList(tempData);
     LocalStorageService.initData(storageEnum.Class.Review, tempData);
+  };
+
+  const updateReviewList = () => {
+    const allReviews =
+      LocalStorageService.findAllByCollection(storageEnum.Collection.Reviews) ||
+      [];
+    const productReviews = allReviews.filter(
+      (rev) => rev.productId === parseInt(productId)
+    );
+    setReviewList(productReviews);
   };
 
   //리뷰를 작성하기 전에 모든 입력 필드가 비어 있지 않은지 확인하는 함수
@@ -54,34 +85,42 @@ const ReviewComponent = () => {
     }
   };
 
-  // 리뷰 등록 handler
+  // 수정된 리뷰 등록 handler
   const reviewHandler = () => {
     if (!validateFields(review)) return;
 
-    const generateId = () => {
-      const tempTest = LocalStorageService.findAllByCollection(
-        storageEnum.Collection.Reviews
-      );
-      if (tempTest.length === 0) return 1;
-      else return tempTest[tempTest.length - 1].reviewId + 1;
-    };
-    console.log("니가 똑바로 나오는지 볼거야 ", generateId());
+    // 모든 리뷰 데이터를 가져와서 새로운 ID를 생성
+    const allReviews =
+      LocalStorageService.findAllByCollection(storageEnum.Collection.Reviews) ||
+      [];
+    const newReviewId =
+      allReviews.length > 0
+        ? allReviews[allReviews.length - 1].reviewId + 1
+        : 1;
+
     const newReview = {
-      reviewId: generateId(),
-      productId: productId,
-      id: review.id,
+      reviewId: newReviewId,
+      productId: parseInt(productId), // productId를 숫자로 변환
+      id: user.id,
       title: review.title,
       detail: review.detail,
       date: new Date().toLocaleString(),
     };
-    setReviewList([...reviewList, newReview]);
-    LocalStorageService.saveByOne(storageEnum.Class.Review, newReview);
+
+    // 로컬 스토리지에 새 리뷰 저장
+    LocalStorageService.saveCollectionOne(
+      storageEnum.Class.Review,
+      storageEnum.Collection.Reviews,
+      newReview
+    );
+
+    // 로컬 스토리지에서 최신 데이터를 다시 불러와서 상태 업데이트
+    updateReviewList();
+
+    // 폼 초기화 및 숨기기
     setReview({ title: "", id: "", detail: "" });
-
-    setFormVisible(true);
-
+    setFormVisible(false);
     alert(`리뷰 작성 완료`);
-    setChange(!isChange);
   };
 
   // 리뷰 삭제 handler

@@ -129,16 +129,19 @@ const APITestPage2 = () => {
                     {reviewData.reviewId}
                   </td>
                   <td className="border p-1 text-center">
-                    {reviewData.product.name}
+                    {reviewData.productId}
                   </td>
                   <td className="border p-1 text-center">
                     {reviewData.user.id}
                   </td>
+                  <td className="border p-1 text-center">
+                    {reviewData.user.date}
+                  </td>
                   <td className="border p-1 text-center">{reviewData.title}</td>
                   <td className="border p-1 text-center">
-                    {reviewData.content}
+                    {reviewData.detail}
                   </td>
-                  <td className="border p-1 text-center">{reviewData.date}</td>
+                  <td className="border p-1 text-center">{reviewData.user}</td>
                 </tr>
               </React.Fragment>
             ))}

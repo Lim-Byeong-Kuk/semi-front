@@ -3,9 +3,12 @@ import React, { createContext, useState } from "react";
 export const LoginContext = createContext(null);
 
 export const LoginProvider = ({ children }) => {
-  const [user, setUser] = useState({
-    isLogin: "",
-    id: "",
+  const [user, setUser] = useState(() => {
+    const isLogin = localStorage.getItem("isLogin");
+    const id = localStorage.getItem("loginUser");
+    return JSON.parse(isLogin)
+      ? { isLogin: isLogin, id: id }
+      : { isLogin: false, id: "" };
   });
 
   const login = ({ id, pwd }) => {

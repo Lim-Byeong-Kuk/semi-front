@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import CheckoutHeader from "../headerfooter/CheckoutHeader";
-import { LocalStorageService } from "../../api/storageApi";
+import { LocalStorageService, storageEnum } from "../../api/storageApi";
+import { useNavigate, useParams } from "react-router-dom";
+import { LoginContext } from "../../api/context/LoginContext";
+import { v4 as uuidv4 } from "uuid";
 
 /*
+  여기에서 받아와야하는 데이터 : 주문한 user 를 받아 id 사용, user 안에 카트배열 사용
   이 페이지에서 완성될 데이터 -> 결제내역
   name:
   postcode:
@@ -14,7 +18,9 @@ import { LocalStorageService } from "../../api/storageApi";
   paymentOption:
   상품가격에 대한 정보는 장바구니 또는 제품상세페이지에서 넘어와야 함
   주문일자,
-  주문번호,
+  결제내역번호,
+  운송번호,
+  주문번호
 
 
   TODO :
@@ -29,6 +35,13 @@ const Checkout = () => {
   const [phoneSecond, setPhoneSecond] = useState("");
   const [phoneThird, setPhoneThird] = useState("");
   const [paymentOption, setPaymentOption] = useState("");
+  const [productsPrice, setProductsPrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+  const { userId } = useParams();
+  const { findAll, findAllByCollection } = LocalStorageService;
+  const { user, loginCheck } = useContext(LoginContext);
 
   const [shippingAddress, setShippingAddress] = useState({
     name: "",
@@ -38,6 +51,32 @@ const Checkout = () => {
     phoneNum: "",
     deleveryInstruction: "부재 시 문 앞에 놓아주세요",
   });
+
+  const [orderRecord, setOrderRecord] = useState({
+    orderId: 0,
+    name: "",
+    postcode: "",
+    roadAddress: "",
+    detailAddress: "",
+    phoneNum: "",
+    deliveryInstruction: "부재 시 문 앞에 놓아주세요",
+    totalPrice: 0,
+    paymentOption: "무통장 입금",
+    orderCode: "",
+    date: "",
+  });
+
+  useEffect(() => {
+    const allCarts = findAllByCollection(storageEnum.Collection.Carts);
+    console.log(user.id);
+    const myCarts = allCarts.filter((cart) => cart.id === user.id);
+    const price = myCarts
+      .map((cart) => cart.quantity * cart.singlePrice)
+      .reduce((acc, i) => acc + i, 0);
+    console.log(price);
+    setProductsPrice(price);
+    setTotalPrice(price + 3000);
+  }, []);
 
   /* daum 우편번호 API 사용 */
   const openPostcode = () => {
@@ -54,14 +93,14 @@ const Checkout = () => {
   };
 
   const changeHandler = (e) => {
-    setShippingAddress((prev) => ({
+    setOrderRecord((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
   const logHandler = () => {
-    setShippingAddress((prev) => {
+    setOrderRecord((prev) => {
       const temp = {
         ...prev,
         phoneNum: `${phoneFirst}${phoneSecond}${phoneThird}`,
@@ -73,10 +112,47 @@ const Checkout = () => {
     console.log("결제수단 : ", paymentOption);
   };
 
+  const generateOrderCode = () => {
+    const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+    const uuidPart = uuidv4().split("-")[0]; // UUID 앞 8자리만 사용
+    return `${datePart}-${uuidPart}`;
+  };
+
+  const paymentModalHandler = () => {
+    if (!paymentOption) {
+      alert("결제수단을 선택해주세요.");
+      return;
+    }
+    setShowModal(true); // 모달 열기
+  };
+
+  const createOrderRecord = (newOrderCode) => {
+    setOrderRecord((prev) => {
+      const orderRecord = {
+        ...prev,
+        phoneNum: `${phoneFirst}${phoneSecond}${phoneThird}`,
+        totalPrice: totalPrice,
+        paymentOption: paymentOption,
+        orderCode: newOrderCode,
+        date: new Date().toLocaleString(),
+      };
+      console.log(orderRecord);
+      return orderRecord;
+    });
+  };
+
+  const confirmHandler = () => {
+    setShowModal(false);
+    const newOrderCode = generateOrderCode();
+
+    createOrderRecord(newOrderCode);
+
+    navigate(`/paymentcomplete/${newOrderCode}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <CheckoutHeader />
-
       <button onClick={logHandler}>배송지 정보 로그 버튼(테스트용)</button>
 
       {/* Content */}
@@ -196,11 +272,11 @@ const Checkout = () => {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span>주문상품</span>
-              <span>₩270,000</span>
+              <span>₩{productsPrice.toLocaleString()}원</span>
             </div>
             <div className="flex justify-between">
               <span>배송비</span>
-              <span>₩10,000</span>
+              <span>₩3,000</span>
             </div>
             <div className="flex justify-between">
               <span>할인/부가결제</span>
@@ -208,7 +284,7 @@ const Checkout = () => {
             </div>
             <div className="flex justify-between font-semibold text-base border-t pt-2">
               <span>최종 결제 금액</span>
-              <span>₩280,000</span>
+              <span>₩{totalPrice.toLocaleString()}원</span>
             </div>
           </div>
         </section>
@@ -224,22 +300,26 @@ const Checkout = () => {
               "카드 결제",
               "무통장 입금",
               "휴대폰 결제",
-            ].map((option) => {
-              const isSelected = paymentOption === option;
+            ]
+              .filter((option) => option === "무통장 입금")
+              .map((option) => {
+                const isSelected = paymentOption === option;
+                const isBankTransfer = option === "무통장 입금";
 
-              return (
-                <button
-                  key={option}
-                  onClick={(e) => {
-                    setPaymentOption(option);
-                  }}
-                  className={`w-full border rounded-lg p-2 text-sm text-left
-        ${isSelected ? "bg-blue-500 text-white" : "hover:bg-gray-100"}`}
-                >
-                  {option}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={option}
+                    onClick={(e) => {
+                      setPaymentOption(option);
+                    }}
+                    className={`w-full border rounded-lg p-2 text-sm text-left
+        ${isSelected ? "bg-blue-500 text-white" : "hover:bg-gray-100"}
+        `}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
           </div>
           <p className="mt-3 text-xs text-gray-500 leading-relaxed">
             - 주문 변경 시 카드사 혜택 및 할부 적용 여부는 카드사 정책에 따라
@@ -252,8 +332,11 @@ const Checkout = () => {
 
       {/* 결제 버튼 */}
       <footer className="p-4 border-t bg-white">
-        <button className="w-full bg-black text-white py-3 rounded-2xl font-semibold text-lg">
-          ₩280,000 결제하기
+        <button
+          className="w-full bg-black text-white py-3 rounded-2xl font-semibold text-lg"
+          onClick={paymentModalHandler}
+        >
+          {totalPrice.toLocaleString()} 결제하기
         </button>
         <p className="mt-3 text-xs text-gray-500 leading-relaxed">
           - 무이자할부가 적용되지 않은 상품과 무이자할부가 가능한 상품을 동시에
@@ -261,6 +344,24 @@ const Checkout = () => {
           <br />- 최소 결제 가능 금액은 배송비 제외 금액입니다.
         </p>
       </footer>
+
+      {/* 모달 */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-80 text-center">
+            <h3 className="text-lg font-semibold mb-3">결제 완료</h3>
+            <p className="text-gray-600 mb-6">
+              결제가 정상적으로 완료되었습니다.
+            </p>
+            <button
+              onClick={confirmHandler}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
+            >
+              확인하기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -15,6 +15,7 @@ import MypageLayout from "../pages/common/MypageLayout";
 import APITestPage from "../pages/APITestPage";
 import APITestPage2 from "../pages/APITestPage2";
 import APITestPage4 from "../pages/APITestPage4";
+import PaymentCompletePage from "../pages/common/PaymentCompletePage";
 
 const root = createBrowserRouter([
   {
@@ -34,7 +35,7 @@ const root = createBrowserRouter([
     element: <CartPage></CartPage>,
   },
   {
-    path: "checkout",
+    path: "checkout/:id",
     element: <CheckoutPage></CheckoutPage>,
   },
   {
@@ -47,7 +48,7 @@ const root = createBrowserRouter([
   },
   {
     path: "apiFinal",
-    element: <APITestPage4></APITestPage4>
+    element: <APITestPage4></APITestPage4>,
   },
   {
     path: "qanda",
@@ -56,6 +57,10 @@ const root = createBrowserRouter([
   {
     path: "login",
     element: <LoginPage />,
+  },
+  {
+    path: "paymentComplete/:id",
+    element: <PaymentCompletePage />,
   },
   {
     path: "signup",

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { phonecaseProducts } from "../../dummydata/phonecaseProducts";
 import { useNavigate, useParams } from "react-router-dom";
 import { getOne } from "../../api/shopApi";
@@ -6,6 +6,9 @@ import ReviewComponent from "./ReviewComponent";
 
 const DetailComponent = () => {
   const { productId } = useParams();
+  const productDetail = useRef(null);
+  const purchaseInformation = useRef(null);
+  const reviewRef = useRef(null);
   const navigate = useNavigate();
   const [product, setProduct] = useState({
     productId: 0,
@@ -25,6 +28,28 @@ const DetailComponent = () => {
   };
   const moveToCheckOutHandler = () => {
     navigate("/checkout");
+  };
+
+  // 제품상세 ref 핸들러
+  const productDetailHandler = () => {
+    productDetail.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+  // 상품구매안내 ref 핸들러
+  const purchaseInformationHandler = () => {
+    purchaseInformation.current.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
+  // 리뷰 ref 핸들러
+  const reviewRefHandler = () => {
+    reviewRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   return (
@@ -66,16 +91,29 @@ const DetailComponent = () => {
       {/* 네비게이션 바 */}
       <div className="border-b">
         <nav className="flex gap-6 justify-center text-lg font-semibold">
-          <button className="py-3 border-b-2 border-black">제품상세</button>
-          <button className="py-3 text-gray-500 hover:text-black">
+          <button
+            className="py-3 border-b-2 border-black"
+            onClick={productDetailHandler}
+          >
+            제품상세
+          </button>
+          <button
+            className="py-3 text-gray-500 hover:text-black"
+            onClick={purchaseInformationHandler}
+          >
             상품구매안내
           </button>
-          <button className="py-3 text-gray-500 hover:text-black">리뷰</button>
+          <button
+            className="py-3 text-gray-500 hover:text-black"
+            onClick={reviewRefHandler}
+          >
+            리뷰
+          </button>
         </nav>
       </div>
 
       {/* 제품상세 이미지 */}
-      <div className="border rounded-lg p-4">
+      <div ref={productDetail} className="border rounded-lg p-4">
         <img
           src={product.image}
           alt="제품 상세 이미지"
@@ -84,14 +122,14 @@ const DetailComponent = () => {
       </div>
 
       {/* 상품구매안내 */}
-      <div className="p-6 border rounded-lg">
+      <div ref={purchaseInformation} className="p-6 border rounded-lg">
         <h2 className="text-xl font-bold mb-4">상품구매안내</h2>
         <p className="text-gray-700">
           배송은 결제 완료 후 2~3일 내 이루어집니다. 반품 및 교환은 수령일로부터
           7일 이내에 가능합니다.
         </p>
       </div>
-      <ReviewComponent />
+      <ReviewComponent ref={reviewRef} />
       {/* 페이지 버튼 */}
       <div className="flex justify-center gap-2">
         {[1, 2, 3].map((page) => (

@@ -391,8 +391,8 @@ export default function QandAComponent() {
                           storageEnum.Class.QnA,
                           storageEnum.Collection.QnAs,
                           user.id,
-                          selectedItem.qnaId,
-                        )
+                          selectedItem.qnaId
+                        );
                       } catch (e) {
                         console.warn("LocalStorage 저장 실패:", e);
                       }

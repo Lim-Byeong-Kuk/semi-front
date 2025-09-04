@@ -1,11 +1,14 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FaPhotoVideo } from "react-icons/fa";
 import { TbMessageCircleQuestion } from "react-icons/tb";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import { LocalStorageService, storageEnum } from "../../api/storageApi";
 import { IoMdArrowBack } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { LoginContext } from "../../api/context/LoginContext";
+import { QnA } from "../../api/factories/QnA";
+import { BiMessageSquareX } from "react-icons/bi";
+
 // 예시 데이터
 const INITIAL_ITEMS = [
   {
@@ -57,11 +60,14 @@ export default function QandAComponent() {
   const [isDetailOpen, setDetailOpen] = useState(false);
   const [form, setForm] = useState({ title: "", content: "", writer: "" });
   const [selectedItem, setSelectedItem] = useState(null);
-  const {user, loginCheck} = useContext(LoginContext);
+  const { user, loginCheck } = useContext(LoginContext);
+  const { updateById, deleteById } = LocalStorageService;
 
   // 저장소 복원 (+ number 제거 정규화)
   const [items, setItems] = useState(() => {
-    const raw = LocalStorageService.findAllByCollection(storageEnum.Collection.QnAs);
+    const raw = LocalStorageService.findAllByCollection(
+      storageEnum.Collection.QnAs
+    );
     console.log(raw);
     // const raw = LocalStorageService?.findAll?.(storageEnum.Class.QnA) || [];
     const data =
@@ -69,7 +75,7 @@ export default function QandAComponent() {
     data.sort((a, b) => (b.qnaId ?? 0) - (a.qnaId ?? 0));
     const normalized = data.map(({ number, ...rest }) => rest);
     if (!raw.length) {
-      LocalStorageService?.initData?.(storageEnum.Class.QnA, normalized);
+      LocalStorageService?.initData(storageEnum.Class.QnA, normalized);
     }
     return normalized;
   });
@@ -81,7 +87,6 @@ export default function QandAComponent() {
 
   // ESC 닫기
   useEffect(() => {
-    loginCheck();
     console.log(user);
     const onKey = (e) => {
       if (e.key === "Escape") {
@@ -148,7 +153,7 @@ export default function QandAComponent() {
 
     const newItem = {
       qnaId: nextId,
-      id:user.id,
+      id: user.id,
       title,
       content,
       writer,
@@ -159,7 +164,11 @@ export default function QandAComponent() {
 
     try {
       // LocalStorageService?.saveByOne?.(storageEnum.Class.QnA, newItem);
-      LocalStorageService.saveCollectionOne(storageEnum.Class.QnA, storageEnum.Collection.QnAs, newItem);
+      LocalStorageService.saveCollectionOne(
+        storageEnum.Class.QnA,
+        storageEnum.Collection.QnAs,
+        newItem
+      );
     } catch (e) {
       console.warn("LocalStorage 저장 실패:", e);
     }
@@ -191,11 +200,11 @@ export default function QandAComponent() {
               <div
                 key={it.qnaId}
                 className="
-          grid gap-4 p-4
-          text-center items-center
-          grid-cols-1
-          md:grid-cols-[90px_220px_1fr_110px_120px]
-        "
+                grid gap-4 p-4
+                text-center items-center
+                grid-cols-1
+                md:grid-cols-[90px_220px_1fr_110px_120px]
+                "
               >
                 {/* 번호 */}
                 <div className="text-gray-600 justify-self-center">
@@ -276,7 +285,7 @@ export default function QandAComponent() {
           aria-labelledby="detailTitle"
           onClick={(e) => e.stopPropagation()}
           className={[
-            "w-[min(90vw,640px)] rounded-2xl bg-white p-6 transition-transform shadow-2xl",
+            "relative w-[min(90vw,640px)] rounded-2xl bg-white p-6 transition-transform shadow-2xl",
             isDetailOpen ? "translate-y-0" : "translate-y-2",
           ].join(" ")}
         >
@@ -349,15 +358,51 @@ export default function QandAComponent() {
                   <div className="text-gray-500">첨부 이미지가 없습니다.</div>
                 )}
               </div>
-
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="p-4">
+                {/* 닫기 아이콘 (모달 우측 상단) */}
                 <button
                   type="button"
                   onClick={() => setDetailOpen(false)}
-                  className="px-4 py-2 rounded-md border"
+                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full overflow-hidden"
                 >
-                  닫기
+                  <BiMessageSquareX
+                    className="z-10 text-sky-500 group-hover:text-white transition-colors"
+                    size={20}
+                  />
                 </button>
+
+                {/* 버튼 영역 (모달 하단 우측 정렬) */}
+                <div className="flex justify-end gap-2 pt-10">
+                  <button
+                    type="button"
+                    onClick={() => {}}
+                    className="group relative px-4 py-2 rounded-md border overflow-hidden text-black"
+                  >
+                    <span className="relative z-10">수정</span>
+                    <span className="absolute inset-0 bg-sky-400/70 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-md"></span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      console.log(selectedItem.qnaId);
+                      try {
+                        // LocalStorageService?.saveByOne?.(storageEnum.Class.QnA, newItem);
+                        LocalStorageService.deleteByCollection(
+                          storageEnum.Class.QnA,
+                          storageEnum.Collection.QnAs,
+                          user.id,
+                          selectedItem.qnaId,
+                        )
+                      } catch (e) {
+                        console.warn("LocalStorage 저장 실패:", e);
+                      }
+                    }}
+                    className="group relative px-4 py-2 rounded-md border overflow-hidden text-black"
+                  >
+                    <span className="relative z-10">삭제</span>
+                    <span className="absolute inset-0 bg-sky-400/70 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-md"></span>
+                  </button>
+                </div>
               </div>
             </div>
           )}

@@ -1,14 +1,15 @@
 import { storageEnum, isValid } from "./factoriesApi";
 
 export class QnA {
-  constructor(qnaId, title, content, writer, date,images, href) {
+  constructor(qnaId, id, title, content, writer, date,images, href) {
     this.qnaId = isValid(qnaId) ? qnaId : QnA.getNextId();
+    this.id = id;
     this.title = title;
     this.content = content;
     this.writer = writer;
     this.date = date;
     this.images= images;
-    this.href = "#";
+    this.href = href;
   }
 
   static validate(data) {
@@ -28,7 +29,7 @@ export class QnA {
 
   static create(data) {
     const pnoId = "";
-    const { qnaId, number, title, content, writer, date, images, href} = data;
-    return new QnA( qnaId, number, title, content, writer, date, images, href);
+    const { qnaId, id, title, content, writer, date,images, href} = data;
+    return new QnA( qnaId, id, title, content, writer, date,images, href);
   }
 }

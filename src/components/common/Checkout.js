@@ -40,18 +40,8 @@ const Checkout = () => {
   const [showModal, setShowModal] = useState(false);
   const [navigateModal, setNavigateModal] = useState(false);
   const navigate = useNavigate();
-  // const { userId } = useParams();
   const { findAll, findAllByCollection } = LocalStorageService;
   const { user, loginCheck } = useContext(LoginContext);
-
-  // const [shippingAddress, setShippingAddress] = useState({
-  //   name: "",
-  //   postcode: "",
-  //   roadAddress: "",
-  //   detailAddress: "",
-  //   phoneNum: "",
-  //   deleveryInstruction: "부재 시 문 앞에 놓아주세요",
-  // });
 
   const [orderRecord, setOrderRecord] = useState({
     orderId: 0,
@@ -81,13 +71,7 @@ const Checkout = () => {
       .reduce((acc, i) => acc + i, 0);
     setProductsPrice(price);
     setTotalPrice(price + 3000);
-    // console.log("user.id : ", user.id);
-    // console.log("price : ", price);
   };
-
-  // useEffect(() => {
-  //   updatePrice();
-  // }, [userId]);
 
   useEffect(() => {
     const users = JSON.parse(localStorage.getItem("user"));
@@ -117,19 +101,6 @@ const Checkout = () => {
     }));
   };
 
-  const logHandler = () => {
-    setOrderRecord((prev) => {
-      const temp = {
-        ...prev,
-        phoneNum: `${phoneFirst}${phoneSecond}${phoneThird}`,
-      };
-      console.log(temp);
-      return temp;
-    });
-
-    console.log("결제수단 : ", paymentOption);
-  };
-
   const generateOrderCode = () => {
     const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
     const uuidPart = uuidv4().split("-")[0]; // UUID 앞 8자리만 사용
@@ -145,18 +116,6 @@ const Checkout = () => {
   };
 
   const createOrderRecord = (newOrderCode) => {
-    // setOrderRecord((prev) => {
-    //   const orderRecordDto = {
-    //     ...prev,
-    //     phoneNum: `${phoneFirst}${phoneSecond}${phoneThird}`,
-    //     totalPrice: totalPrice,
-    //     paymentOption: paymentOption,
-    //     orderCode: newOrderCode,
-    //     id: user.id,
-    //     date: new Date().toLocaleString(),
-    //   };
-    //   return orderRecordDto;
-    // });
     const orderRecordDto = {
       ...orderRecord,
       phoneNum: `${phoneFirst}${phoneSecond}${phoneThird}`,
@@ -187,7 +146,6 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <CheckoutHeader />
-      <button onClick={logHandler}>배송지 정보 로그 버튼(테스트용)</button>
 
       {/* Content */}
       <main className="max-w-2xl mx-auto p-4 space-y-6">

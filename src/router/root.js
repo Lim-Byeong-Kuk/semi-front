@@ -35,7 +35,7 @@ const root = createBrowserRouter([
     element: <CartPage></CartPage>,
   },
   {
-    path: "checkout/:id",
+    path: "checkout",
     element: <CheckoutPage></CheckoutPage>,
   },
   {
@@ -59,7 +59,7 @@ const root = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    path: "paymentComplete/:id",
+    path: "paymentComplete/:ordercode",
     element: <PaymentCompletePage />,
   },
   {

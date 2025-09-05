@@ -16,7 +16,9 @@ const Login = () => {
   });
 
   useEffect(() => {
-    initData(storageEnuma.Class.User, userData);
+    if (!localStorage.getItem("user")) {
+      initData(storageEnuma.Class.User, userData);
+    }
     loginCheck();
   }, []);
 

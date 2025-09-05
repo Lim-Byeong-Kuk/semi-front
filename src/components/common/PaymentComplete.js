@@ -1,15 +1,37 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { LoginContext } from "../../api/context/LoginContext";
+import { LocalStorageService, storageEnum } from "../../api/storageApi";
 
 const PaymentComplete = () => {
   const navigate = useNavigate();
+  const { ordercode } = useParams();
   const [navigateModal, setNavigateModal] = useState(false);
+  const [orderConfirm, setOrderConfirm] = useState({
+    totalPrice: 0,
+    phoneNum: "00000000000",
+  });
   const { user } = useContext(LoginContext);
+  const { findAllByCollection } = LocalStorageService;
 
   useEffect(() => {
+    updateOrderConfirm();
     setNavigateModal(!user.isLogin);
   }, []);
+
+  const updateOrderConfirm = () => {
+    const allOrders = findAllByCollection(storageEnum.Collection.Orders);
+    const myOrders = allOrders.filter((order) => order.id === user.id);
+    const currentOrder = myOrders.find(
+      (order) => order.orderCode === ordercode
+    );
+    // const currentOrder = myOrders.reduce(
+    //   (max, order) => (order.orderId > max.orderId ? order : max),
+    //   { orderId: 0 }
+    // );
+    setOrderConfirm(currentOrder);
+    console.log(currentOrder);
+  };
 
   const navigateModalConfirm = () => {
     setNavigateModal(false);
@@ -34,23 +56,31 @@ const PaymentComplete = () => {
           </div>
           <div className="p-4 flex justify-between">
             <span className="text-gray-600">입금금액</span>
-            <span className="text-blue-600 font-semibold">35,500원</span>
+            <span className="text-blue-600 font-semibold">
+              {orderConfirm.totalPrice.toLocaleString()}원
+            </span>
           </div>
 
           {/* 주문번호 */}
           <div className="p-4 flex justify-between">
             <span className="text-gray-600">주문번호</span>
-            <span className="font-medium">2020060149794</span>
+            <span className="font-medium">{orderConfirm.orderCode}</span>
           </div>
 
           {/* 배송지 */}
           <div className="p-4">
             <span className="text-gray-600 block mb-1">배송지</span>
-            <p className="text-gray-800 font-medium">홍길동</p>
-            <p className="text-gray-600">010-3948-3716</p>
+            <p className="text-gray-800 font-medium">{orderConfirm.name}</p>
             <p className="text-gray-600">
-              서울 마포구 동교로 194 (동교동, 혜원빌딩) 2층 <br />
-              (03995)
+              {orderConfirm.phoneNum.substring(0, 3) +
+                "-" +
+                orderConfirm.phoneNum.substring(3, 7) +
+                "-" +
+                orderConfirm.phoneNum.substring(7)}
+            </p>
+            <p className="text-gray-600">
+              {orderConfirm.roadAddress + " " + orderConfirm.detailAddress}{" "}
+              <br />({orderConfirm.postcode})
             </p>
           </div>
 
@@ -63,7 +93,7 @@ const PaymentComplete = () => {
           {/* 배송 메모 */}
           <div className="p-4">
             <span className="text-gray-600 block mb-1">배송 메모</span>
-            <p className="text-gray-800">배송 전에 미리 연락 바랍니다.</p>
+            <p className="text-gray-800">{orderConfirm.deliveryInstruction}</p>
           </div>
         </div>
 

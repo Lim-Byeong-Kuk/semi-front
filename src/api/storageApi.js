@@ -147,6 +147,7 @@ const saveCollectionOne = (className, collectionName, newData) => {
     return user.id === newData.id;
   });
 
+  console.log(findUser);
   const collection = findUser[collectionName];
 
   // collection 은 기존 유저 안에 있는 reviews or orders or qnas 등이다.
@@ -297,7 +298,7 @@ const updateCollection = (className, collectionName, newData) => {
   });
 
   const anotherCollection = collection.filter(
-    (element) => element[getIdByClass[className] !== newData.id]
+    (element) => element[getIdByClass[className]] !== newData.id
   );
   const newCollection = [...anotherCollection, entity];
 
@@ -371,7 +372,6 @@ const deleteByCollection = (className, collectionName, dataId) => {
   // if (!isValid(getData)) return storageEnum.Result.Failure;
 
   const users = JSON.parse(localStorage.getItem("user"));
-  console.log("users", users);
 
   // 해당 User를 찾은 것입니다.
   // const findUser = users.find((user) => {
@@ -381,6 +381,8 @@ const deleteByCollection = (className, collectionName, dataId) => {
   console.log("findUser", findUser);
   const collection = findUser[collectionName];
 
+  console.log(dataId);
+  console.log(collection);
   // collection 은 기존 유저 안에 있는 reviews or orders or qnas 등이다.
   // 이 값은 빈 배열이어도 상관없어야 한다.
   // if (isValid(collection) === false) return storageEnum.Result.Failure;

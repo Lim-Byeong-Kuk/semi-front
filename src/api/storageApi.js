@@ -21,6 +21,7 @@ import {
 // 클래스 명과 데이터 배열을 매개 변수로 받아서,
 // 저장소의 초기 데이터를 세팅합니다.
 const initData = (className, dataArray) => {
+
   // 클래스 체크
   if (Object.values(storageEnum.Class).includes(className) === false)
     return storageEnum.Result.Failure;
@@ -146,6 +147,7 @@ const saveCollectionOne = (className, collectionName, newData) => {
   const findUser = users.find((user) => {
     return user.id === newData.id;
   });
+
 
   const collection = findUser[collectionName];
 

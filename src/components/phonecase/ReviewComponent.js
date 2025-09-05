@@ -1,20 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { forwardRef, useContext, useEffect, useState } from "react";
 import { LocalStorageService, storageEnum } from "../../api/storageApi";
 import { userData } from "../../dummydata/userData";
 import { useParams } from "react-router-dom";
 import { LoginContext } from "../../api/context/LoginContext";
 
-const ReviewComponent = () => {
+const ReviewComponent = forwardRef(({}, ref) => {
   const { user, loginCheck } = useContext(LoginContext);
   const [formVisible, setFormVisible] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [draft, setDraft] = useState({ title: "", id: "", detail: "" });
+  const [draft, setDraft] = useState({ title: "", id: user.id, detail: "" });
   const { productId } = useParams();
 
   const [review, setReview] = useState({
     reviewId: 0,
     title: "",
-    id: "",
+    id: user.id,
     detail: "",
     date: "",
   });
@@ -49,13 +49,6 @@ const ReviewComponent = () => {
     };
   }, []); // isChange 상태를 사용하지 않고 storage 이벤트만 감지
 
-  // useEffect(() => {
-  // const saved = LocalStorageService.findAll(storageEnum.Class.Review).filter(
-  //   (rev) => parseInt(rev.productId) === parseInt(productId)
-  // );
-  // setReviewList(saved);
-  // }, [isChange]);
-
   const reviewInit = () => {
     const tempData = userData
       .map((user) => user.reviews)
@@ -85,21 +78,21 @@ const ReviewComponent = () => {
     }
   };
 
-  // 수정된 리뷰 등록 handler
+  // 리뷰 등록 handler
   const reviewHandler = () => {
     if (!validateFields(review)) return;
 
     // 모든 리뷰 데이터를 가져와서 새로운 ID를 생성
-    const allReviews =
-      LocalStorageService.findAllByCollection(storageEnum.Collection.Reviews) ||
-      [];
+    const allReviews = LocalStorageService.findAllByCollection(
+      storageEnum.Collection.Reviews
+    );
     const newReviewId =
       allReviews.length > 0
         ? allReviews[allReviews.length - 1].reviewId + 1
         : 1;
 
     const newReview = {
-      reviewId: newReviewId,
+      // reviewId: newReviewId, //없는채로 넘겨도 상관 없다 api에서 알아서 생성
       productId: parseInt(productId), // productId를 숫자로 변환
       id: user.id,
       title: review.title,
@@ -177,7 +170,7 @@ const ReviewComponent = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div ref={ref} className="space-y-6">
       <h2 className="text-xl font-bold">리뷰</h2>
 
       {/* 목록 */}
@@ -201,14 +194,14 @@ const ReviewComponent = () => {
                         value={draft.title}
                         onChange={draftChangeHandler}
                       />
-                      <input
+                      {/* <input
                         className="w-1/2 p-2 border rounded-md"
                         type="text"
                         name="id"
                         placeholder="이름"
                         value={draft.id}
                         onChange={draftChangeHandler}
-                      />
+                      /> */}
                     </div>
                     <textarea
                       className="w-full p-2 border rounded-md"
@@ -302,14 +295,14 @@ const ReviewComponent = () => {
               value={review.title}
               onChange={changeHandler}
             />
-            <input
+            {/* <input
               className="w-full p-2 border rounded-md"
               type="text"
               placeholder="이름"
               name="id"
               value={review.id}
               onChange={changeHandler}
-            />
+            /> */}
           </div>
 
           <textarea
@@ -342,6 +335,6 @@ const ReviewComponent = () => {
       )}
     </div>
   );
-};
+});
 
 export default ReviewComponent;

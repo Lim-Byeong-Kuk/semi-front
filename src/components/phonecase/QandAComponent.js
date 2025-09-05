@@ -1,27 +1,18 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FaPhotoVideo } from "react-icons/fa";
 import { TbMessageCircleQuestion } from "react-icons/tb";
-import { data, useNavigate } from "react-router-dom";
-import { LocalStorageService, storageEnum } from "../../api/storageApi";
 import { IoMdArrowBack } from "react-icons/io";
-import { Link } from "react-router-dom";
-import { LoginContext } from "../../api/context/LoginContext";
-import { QnA } from "../../api/factories/QnA";
 import { BiMessageSquareX } from "react-icons/bi";
+import { Link, useNavigate } from "react-router-dom";
+import { LocalStorageService, storageEnum } from "../../api/storageApi";
+import { LoginContext } from "../../api/context/LoginContext";
 
-// 예시 데이터
+// ✅ 단일 저장 키
+const STORAGE_KEY = "app.qna.items";
+const SEEDED_KEY = "app.qna.seeded";
+
+// 예시 데이터 (최초 1회 시드용)
 const INITIAL_ITEMS = [
-  {
-    qnaId: 1,
-    title: "중순까지 배달 가능한가요?",
-    content: "가능하면 날짜 맞춰 보내주세요!",
-    writer: "조*우",
-    date: "2025.09.01",
-    images: [
-      "https://akan.co.kr/upload/products/NEVER/KYJN5004/thumb-single-graybg.webp",
-    ],
-    href: "#",
-  },
   {
     qnaId: 2,
     title: "언제 배송 되나요?",
@@ -30,6 +21,17 @@ const INITIAL_ITEMS = [
     date: "2025.09.01",
     images: [
       "https://akan.co.kr/upload/products/MDBUMP/AQ9999/thumb-single-graybg.webp",
+    ],
+    href: "#",
+  },
+  {
+    qnaId: 1,
+    title: "중순까지 배달 가능한가요?",
+    content: "가능하면 날짜 맞춰 보내주세요!",
+    writer: "조*우",
+    date: "2025.09.01",
+    images: [
+      "https://akan.co.kr/upload/products/NEVER/KYJN5004/thumb-single-graybg.webp",
     ],
     href: "#",
   },
@@ -55,39 +57,80 @@ const filesToDataUrls = (files) =>
     )
   );
 
+// ✅ 안전 로드/저장 헬퍼
+function loadItems() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (e) {
+    console.warn("loadItems 실패:", e);
+  }
+  // localStorage 비어있으면: (최초 1회) 시드 or 서비스에서 복원 시도
+  try {
+    const once = localStorage.getItem(SEEDED_KEY);
+    if (!once) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_ITEMS));
+      localStorage.setItem(SEEDED_KEY, "1");
+      return INITIAL_ITEMS.slice();
+    }
+  } catch { }
+  // 혹시 서비스에 데이터가 있다면 보조 복원
+  try {
+    const coll = storageEnum?.Collection?.QnAs;
+    const svc = LocalStorageService?.findAllByCollection?.(coll) ?? [];
+    if (Array.isArray(svc) && svc.length) {
+      const normalized = svc.map(({ number, ...rest }) => rest);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+      return normalized;
+    }
+  } catch (e) {
+    console.warn("서비스 복원 실패:", e);
+  }
+  return INITIAL_ITEMS.slice();
+}
+
+function saveItems(items) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch (e) {
+    console.warn("saveItems 실패:", e);
+  }
+}
+
 export default function QandAComponent() {
   const [isAskOpen, setAskOpen] = useState(false);
   const [isDetailOpen, setDetailOpen] = useState(false);
   const [form, setForm] = useState({ title: "", content: "", writer: "" });
   const [selectedItem, setSelectedItem] = useState(null);
-  const { user, loginCheck } = useContext(LoginContext);
-  const { updateById, deleteById } = LocalStorageService;
-
-  // 저장소 복원 (+ number 제거 정규화)
-  const [items, setItems] = useState(() => {
-    const raw = LocalStorageService.findAllByCollection(
-      storageEnum.Collection.QnAs
-    );
-    console.log(raw);
-    // const raw = LocalStorageService?.findAll?.(storageEnum.Class.QnA) || [];
-    const data =
-      Array.isArray(raw) && raw.length ? raw.slice() : INITIAL_ITEMS.slice();
-    data.sort((a, b) => (b.qnaId ?? 0) - (a.qnaId ?? 0));
-    const normalized = data.map(({ number, ...rest }) => rest);
-    if (!raw.length) {
-      LocalStorageService?.initData(storageEnum.Class.QnA, normalized);
-    }
-    return normalized;
-  });
-
   const [images, setImages] = useState([]); // dataURL[]
   const fileRef = useRef(null);
+
   const navigate = useNavigate();
+  const { user } = useContext(LoginContext);
+
+  const STORAGE_CLASS = storageEnum?.Class?.QnA;
+  const STORAGE_COLLECTION = storageEnum?.Collection?.QnAs;
+
+  // ✅ items: 항상 localStorage에서 시작
+  const [items, setItems] = useState(() => {
+    const data = loadItems();
+    // 정렬 일관화 (최신 qnaId 먼저)
+    data.sort((a, b) => (b.qnaId ?? 0) - (a.qnaId ?? 0));
+    return data;
+  });
+
+  // ✅ 변경될 때마다 자동 저장 (F5 대비 핵심)
+  useEffect(() => {
+    saveItems(items);
+  }, [items]);
+
   const moveToImgHandler = () => navigate("/phonecase/1");
 
   // ESC 닫기
   useEffect(() => {
-    console.log(user);
     const onKey = (e) => {
       if (e.key === "Escape") {
         setAskOpen(false);
@@ -119,7 +162,6 @@ export default function QandAComponent() {
   const onPickFiles = async (e) => {
     const picked = Array.from(e.target.files || []);
     if (!picked.length) return;
-
     const MAX_FILES = 5;
     const MAX_SIZE = 2 * 1024 * 1024;
     const filtered = picked
@@ -131,7 +173,6 @@ export default function QandAComponent() {
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
-
     try {
       const dataUrls = await filesToDataUrls(filtered);
       setImages(dataUrls);
@@ -153,7 +194,7 @@ export default function QandAComponent() {
 
     const newItem = {
       qnaId: nextId,
-      id: user.id,
+      id: user?.id ?? "guest",
       title,
       content,
       writer,
@@ -162,22 +203,50 @@ export default function QandAComponent() {
       href: "#",
     };
 
+    // 보조: 서비스에도 저장 시도 (실패해도 items가 진짜 소스라 상관없음)
     try {
-      // LocalStorageService?.saveByOne?.(storageEnum.Class.QnA, newItem);
-      LocalStorageService.saveCollectionOne(
-        storageEnum.Class.QnA,
-        storageEnum.Collection.QnAs,
+      LocalStorageService?.saveCollectionOne?.(
+        STORAGE_CLASS,
+        STORAGE_COLLECTION,
         newItem
       );
     } catch (e) {
-      console.warn("LocalStorage 저장 실패:", e);
+      console.warn("LocalStorageService 저장 실패:", e);
     }
 
-    setItems((prev) => [newItem, ...prev]);
+    // ✅ 상태 갱신 → useEffect가 자동으로 localStorage에 반영
+    setItems((prev) => {
+      const next = [newItem, ...prev];
+      // 정렬 보장 (qnaId 큰 게 위)
+      next.sort((a, b) => (b.qnaId ?? 0) - (a.qnaId ?? 0));
+      return next;
+    });
+
     setForm({ title: "", content: "", writer: "" });
     setImages([]);
     if (fileRef.current) fileRef.current.value = "";
     setAskOpen(false);
+  };
+
+  const handleDelete = () => {
+    if (!selectedItem) return;
+
+    // 보조: 서비스 삭제 시도
+    try {
+      LocalStorageService?.deleteByCollection?.(
+        STORAGE_CLASS,
+        STORAGE_COLLECTION,
+        user?.id ?? "guest",
+        selectedItem.qnaId
+      );
+    } catch (e) {
+      console.warn("LocalStorageService 삭제 실패:", e);
+    }
+
+    // ✅ 상태에서 제거 → useEffect가 자동 저장
+    setItems((prev) => prev.filter((i) => i.qnaId !== selectedItem.qnaId));
+    setDetailOpen(false);
+    setSelectedItem(null);
   };
 
   return (
@@ -200,10 +269,10 @@ export default function QandAComponent() {
               <div
                 key={it.qnaId}
                 className="
-                grid gap-4 p-4
-                text-center items-center
-                grid-cols-1
-                md:grid-cols-[90px_220px_1fr_110px_120px]
+                  grid gap-4 p-4
+                  text-center items-center
+                  grid-cols-1
+                  md:grid-cols-[90px_220px_1fr_110px_120px]
                 "
               >
                 {/* 번호 */}
@@ -240,9 +309,7 @@ export default function QandAComponent() {
                 <div className="min-w-0 break-words text-center">
                   <button
                     type="button"
-                    className="
-              no-underline text-gray-900 hover:underline line-clamp-2 w-full
-            "
+                    className="no-underline text-gray-900 hover:underline line-clamp-2 w-full"
                     title={it.title}
                     onClick={() => {
                       setSelectedItem(it);
@@ -267,6 +334,7 @@ export default function QandAComponent() {
           })}
         </div>
       </div>
+
       {/* 상세 모달 */}
       <div
         aria-hidden={!isDetailOpen}
@@ -274,9 +342,7 @@ export default function QandAComponent() {
         onClick={() => setDetailOpen(false)}
         className={[
           "fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity",
-          isDetailOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none",
+          isDetailOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
         ].join(" ")}
       >
         <div
@@ -289,10 +355,17 @@ export default function QandAComponent() {
             isDetailOpen ? "translate-y-0" : "translate-y-2",
           ].join(" ")}
         >
-          <h2
-            id="detailTitle"
-            className="text-xl font-semibold mb-4 text-center"
+          {/* 닫기 아이콘 */}
+          <button
+            type="button"
+            onClick={() => setDetailOpen(false)}
+            aria-label="닫기"
+            className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full hover:bg-sky-50"
           >
+            <BiMessageSquareX className="text-sky-500" size={22} />
+          </button>
+
+          <h2 id="detailTitle" className="text-xl font-semibold mb-4 text-center">
             질문 상세
           </h2>
 
@@ -308,9 +381,7 @@ export default function QandAComponent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    작성자
-                  </label>
+                  <label className="block text-sm font-medium mb-1">작성자</label>
                   <input
                     value={selectedItem.writer}
                     readOnly
@@ -339,9 +410,7 @@ export default function QandAComponent() {
               </div>
 
               <div>
-                <div className="block text-sm font-medium mb-2">
-                  첨부 이미지
-                </div>
+                <div className="block text-sm font-medium mb-2">첨부 이미지</div>
                 {selectedItem.images?.length ? (
                   <div className="grid grid-cols-3 gap-2">
                     {selectedItem.images.map((src, i) => (
@@ -358,51 +427,25 @@ export default function QandAComponent() {
                   <div className="text-gray-500">첨부 이미지가 없습니다.</div>
                 )}
               </div>
-              <div className="p-4">
-                {/* 닫기 아이콘 (모달 우측 상단) */}
+
+              {/* 버튼 영역 */}
+              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setDetailOpen(false)}
-                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full overflow-hidden"
+                  onClick={() => { }}
+                  className="group relative px-4 py-2 rounded-md border overflow-hidden text-black"
                 >
-                  <BiMessageSquareX
-                    className="z-10 text-sky-500 group-hover:text-white transition-colors"
-                    size={20}
-                  />
+                  <span className="relative z-10">수정</span>
+                  <span className="absolute inset-0 bg-sky-400/70 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-md"></span>
                 </button>
-
-                {/* 버튼 영역 (모달 하단 우측 정렬) */}
-                <div className="flex justify-end gap-2 pt-10">
-                  <button
-                    type="button"
-                    onClick={() => {}}
-                    className="group relative px-4 py-2 rounded-md border overflow-hidden text-black"
-                  >
-                    <span className="relative z-10">수정</span>
-                    <span className="absolute inset-0 bg-sky-400/70 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-md"></span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      console.log(selectedItem.qnaId);
-                      try {
-                        // LocalStorageService?.saveByOne?.(storageEnum.Class.QnA, newItem);
-                        LocalStorageService.deleteByCollection(
-                          storageEnum.Class.QnA,
-                          storageEnum.Collection.QnAs,
-                          user.id,
-                          selectedItem.qnaId,
-                        )
-                      } catch (e) {
-                        console.warn("LocalStorage 저장 실패:", e);
-                      }
-                    }}
-                    className="group relative px-4 py-2 rounded-md border overflow-hidden text-black"
-                  >
-                    <span className="relative z-10">삭제</span>
-                    <span className="absolute inset-0 bg-sky-400/70 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-md"></span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="group relative px-4 py-2 rounded-md border overflow-hidden text-black"
+                >
+                  <span className="relative z-10">삭제</span>
+                  <span className="absolute inset-0 bg-sky-400/70 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-md"></span>
+                </button>
               </div>
             </div>
           )}
@@ -427,9 +470,7 @@ export default function QandAComponent() {
         onClick={() => setAskOpen(false)}
         className={[
           "fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity",
-          isAskOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none",
+          isAskOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
         ].join(" ")}
       >
         <div
@@ -493,12 +534,7 @@ export default function QandAComponent() {
 
               <div className="flex gap-2">
                 {images.slice(0, 3).map((src, i) => (
-                  <img
-                    key={i}
-                    src={src}
-                    alt=""
-                    className="h-12 w-12 rounded object-cover border"
-                  />
+                  <img key={i} src={src} alt="" className="h-12 w-12 rounded object-cover border" />
                 ))}
               </div>
             </div>
@@ -515,10 +551,7 @@ export default function QandAComponent() {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-md bg-sky-500 text-white hover:bg-sky-600"
-              >
+              <button type="submit" className="px-4 py-2 rounded-md bg-sky-500 text-white hover:bg-sky-600">
                 보내기
               </button>
               <button

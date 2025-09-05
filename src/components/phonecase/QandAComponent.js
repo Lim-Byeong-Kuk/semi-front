@@ -6,10 +6,7 @@ import { BiMessageSquareX } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
 import { LocalStorageService, storageEnum } from "../../api/storageApi";
 import { LoginContext } from "../../api/context/LoginContext";
-
-// ✅ 단일 저장 키
-const STORAGE_KEY = "app.qna.items";
-const SEEDED_KEY = "app.qna.seeded";
+import { User } from "../../api/factories/User";
 
 // 예시 데이터 (최초 1회 시드용)
 const INITIAL_ITEMS = [
@@ -59,42 +56,19 @@ const filesToDataUrls = (files) =>
 
 // ✅ 안전 로드/저장 헬퍼
 function loadItems() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch (e) {
-    console.warn("loadItems 실패:", e);
-  }
-  // localStorage 비어있으면: (최초 1회) 시드 or 서비스에서 복원 시도
-  try {
-    const once = localStorage.getItem(SEEDED_KEY);
-    if (!once) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_ITEMS));
-      localStorage.setItem(SEEDED_KEY, "1");
-      return INITIAL_ITEMS.slice();
-    }
-  } catch { }
-  // 혹시 서비스에 데이터가 있다면 보조 복원
-  try {
-    const coll = storageEnum?.Collection?.QnAs;
-    const svc = LocalStorageService?.findAllByCollection?.(coll) ?? [];
-    if (Array.isArray(svc) && svc.length) {
-      const normalized = svc.map(({ number, ...rest }) => rest);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-      return normalized;
-    }
-  } catch (e) {
-    console.warn("서비스 복원 실패:", e);
-  }
-  return INITIAL_ITEMS.slice();
+  const raw = LocalStorageService.findAllByCollection(
+    storageEnum.Collection.QnAs
+  );
+  return raw;
 }
 
 function saveItems(items) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    LocalStorageService.saveCollectionOne(
+      storageEnum.Class.QnA,
+      storageEnum.Collection.QnAs,
+      items
+    );
   } catch (e) {
     console.warn("saveItems 실패:", e);
   }
@@ -116,7 +90,7 @@ export default function QandAComponent() {
 
   // ✅ items: 항상 localStorage에서 시작
   const [items, setItems] = useState(() => {
-    const data = loadItems();
+    const data = loadItems() === storageEnum.Result.Failure ? [] : loadItems();
     // 정렬 일관화 (최신 qnaId 먼저)
     data.sort((a, b) => (b.qnaId ?? 0) - (a.qnaId ?? 0));
     return data;
@@ -206,8 +180,8 @@ export default function QandAComponent() {
     // 보조: 서비스에도 저장 시도 (실패해도 items가 진짜 소스라 상관없음)
     try {
       LocalStorageService?.saveCollectionOne?.(
-        STORAGE_CLASS,
-        STORAGE_COLLECTION,
+        storageEnum.Class.QnA,
+        storageEnum.Collection.QnAs,
         newItem
       );
     } catch (e) {
@@ -228,22 +202,74 @@ export default function QandAComponent() {
     setAskOpen(false);
   };
 
-  const handleDelete = () => {
+  // 모달 수정 버튼
+  const [idcheck, setIdCheck] = useState(""); // 타겟 아이디
+  // const [readOnly, setReadOnly] = useState(true);
+  const [isVerifyOpen, setIsVerifyOpen] = useState(false);
+  const [inputId, setInputId] = useState(""); // 사용자가 입력한 아이디
+  const [canEdit, setCanEdit] = useState(false);
+  const [checkPoint, setCheckPoint] = useState(false);
+  // (1) 수정 버튼 클릭: 모달 열기 + 대상 아이디 저장
+  const correctionButton = () => {
+    setIsVerifyOpen(true);
+    setCanEdit(true);
+  };
+
+  // (2) 모달 확인: 일치 검사 → readOnly 해제 or alert
+  const handleConfirm = () => {
+    if (user && inputId == user.id) {
+      // 문자열 "123" == 숫자 123 → true
+      // setReadOnly(false);
+      setCheckPoint(true);
+      setIsVerifyOpen(false);
+    } else {
+      alert("아이디가 동일하지 않습니다");
+    }
+  };
+
+  const checkcontroller = (checkingData) => {
+    setDetailOpen(false);
+    LocalStorageService.saveCollectionOne(
+      storageEnum.Class.QnA,
+      storageEnum.Collection.QnAs,
+      checkingData
+    );
+  };
+  const changHandler = (e) => {
+    const { name, value } = e.target;
+    setSelectedItem({ ...selectedItem, [name]: value });
+  };
+
+  // (3) 모달 수정, 글 쓰기
+  const [TitleText, setTitle] = useState();
+  const [contenttext, setContent] = useState();
+  const setReadOnlyById = (id) =>
+    document.getElementById(id)?.setAttribute("readonly", "");
+  const removeReadOnlyById = (id) =>
+    document.getElementById(id)?.removeAttribute("readonly");
+
+  const ReadOnlyController = (id, ReadOnlyCheck) => {
+    if (ReadOnlyCheck) removeReadOnlyById(id);
+    else setReadOnlyById(id);
+  };
+
+  // 모달 삭제 버튼
+
+  const handleDelete = (qnaId) => {
     if (!selectedItem) return;
 
     // 보조: 서비스 삭제 시도
     try {
       LocalStorageService?.deleteByCollection?.(
-        STORAGE_CLASS,
-        STORAGE_COLLECTION,
-        user?.id ?? "guest",
-        selectedItem.qnaId
+        storageEnum.Class.QnA,
+        storageEnum.Collection.QnAs,
+        qnaId
       );
     } catch (e) {
       console.warn("LocalStorageService 삭제 실패:", e);
     }
 
-    // ✅ 상태에서 제거 → useEffect가 자동 저장
+    // 상태에서 제거 → useEffect가 자동 저장
     setItems((prev) => prev.filter((i) => i.qnaId !== selectedItem.qnaId));
     setDetailOpen(false);
     setSelectedItem(null);
@@ -342,7 +368,9 @@ export default function QandAComponent() {
         onClick={() => setDetailOpen(false)}
         className={[
           "fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity",
-          isDetailOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+          isDetailOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none",
         ].join(" ")}
       >
         <div
@@ -365,26 +393,34 @@ export default function QandAComponent() {
             <BiMessageSquareX className="text-sky-500" size={22} />
           </button>
 
-          <h2 id="detailTitle" className="text-xl font-semibold mb-4 text-center">
+          <h2
+            id="detailTitle"
+            className="text-xl font-semibold mb-4 text-center"
+          >
             질문 상세
           </h2>
-
           {selectedItem && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium mb-1">제목</label>
+                  {ReadOnlyController("title" + selectedItem.id, checkPoint)}
                   <input
+                    id={"title" + selectedItem.id}
+                    type="text"
+                    name="title"
                     value={selectedItem.title}
-                    readOnly
+                    onChange={(e) => changHandler(e)}
                     className="w-full rounded-md border px-3 py-2 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">작성자</label>
+                  <label className="block text-sm font-medium mb-1">
+                    작성자
+                  </label>
                   <input
-                    value={selectedItem.writer}
                     readOnly
+                    value={selectedItem.writer}
                     className="w-full rounded-md border px-3 py-2 outline-none"
                   />
                 </div>
@@ -394,23 +430,27 @@ export default function QandAComponent() {
                 <label className="block text-sm font-medium mb-1">등록일</label>
                 <input
                   value={selectedItem.date}
-                  readOnly
                   className="w-full rounded-md border px-3 py-2 outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">내용</label>
+                {ReadOnlyController("content" + selectedItem.id, checkPoint)}
                 <textarea
+                  id={"content" + selectedItem.id}
+                  name="content"
                   value={selectedItem.content}
-                  readOnly
+                  onChange={(e) => changHandler(e)}
                   rows={5}
                   className="w-full rounded-md border px-3 py-2 outline-none resize-y"
                 />
               </div>
 
               <div>
-                <div className="block text-sm font-medium mb-2">첨부 이미지</div>
+                <div className="block text-sm font-medium mb-2">
+                  첨부 이미지
+                </div>
                 {selectedItem.images?.length ? (
                   <div className="grid grid-cols-3 gap-2">
                     {selectedItem.images.map((src, i) => (
@@ -431,19 +471,21 @@ export default function QandAComponent() {
               {/* 버튼 영역 */}
               <div className="flex justify-end gap-2 pt-2">
                 <button
-                  type="button"
-                  onClick={() => { }}
+                  onClick={() => {
+                    checkcontroller(selectedItem);
+                    //수정 모달 확인 버튼
+                  }}
                   className="group relative px-4 py-2 rounded-md border overflow-hidden text-black"
                 >
-                  <span className="relative z-10">수정</span>
+                  <span className="relative z-10">확인</span>
                   <span className="absolute inset-0 bg-sky-400/70 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-md"></span>
                 </button>
                 <button
                   type="button"
-                  onClick={handleDelete}
+                  onClick={() => correctionButton()}
                   className="group relative px-4 py-2 rounded-md border overflow-hidden text-black"
                 >
-                  <span className="relative z-10">삭제</span>
+                  <span className="relative z-10">수정 및 삭제</span>
                   <span className="absolute inset-0 bg-sky-400/70 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-md"></span>
                 </button>
               </div>
@@ -470,7 +512,9 @@ export default function QandAComponent() {
         onClick={() => setAskOpen(false)}
         className={[
           "fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity",
-          isAskOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+          isAskOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none",
         ].join(" ")}
       >
         <div
@@ -534,7 +578,12 @@ export default function QandAComponent() {
 
               <div className="flex gap-2">
                 {images.slice(0, 3).map((src, i) => (
-                  <img key={i} src={src} alt="" className="h-12 w-12 rounded object-cover border" />
+                  <img
+                    key={i}
+                    src={src}
+                    alt=""
+                    className="h-12 w-12 rounded object-cover border"
+                  />
                 ))}
               </div>
             </div>
@@ -551,7 +600,10 @@ export default function QandAComponent() {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button type="submit" className="px-4 py-2 rounded-md bg-sky-500 text-white hover:bg-sky-600">
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-md bg-sky-500 text-white hover:bg-sky-600"
+              >
                 보내기
               </button>
               <button
@@ -564,6 +616,87 @@ export default function QandAComponent() {
             </div>
           </form>
         </div>
+      </div>
+      {/* 수정하기 모달 */}
+      <div className="p-6 space-y-6">
+        {/* ✅ 아이디 확인 모달 */}
+        {isVerifyOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            aria-modal="true"
+            role="dialog"
+          >
+            {/* 배경 */}
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setIsVerifyOpen(false)}
+              aria-hidden="true"
+            />
+
+            {/* 모달 카드 */}
+            <div className="relative w-[min(90vw,420px)] rounded-2xl bg-white shadow-2xl p-6 ring-1 ring-blue-100">
+              {/* 제목 */}
+              <h2 className="text-lg font-semibold text-blue-700 text-center">
+                아이디를 입력해주세요.
+              </h2>
+
+              {/* 설명 */}
+              <p className="mt-2 text-sm text-gray-600 text-center">
+                글 작성 시 사용한 아이디와 동일해야 수정 및 취소할 수 있어요.
+              </p>
+
+              {/* 입력창 */}
+              <div className="mt-5 space-y-2">
+                <label className="block text-sm text-blue-700">아이디</label>
+                <input
+                  type="text"
+                  className="w-full rounded-md border border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-3 py-2 outline-none"
+                  placeholder="Enter your ID"
+                  value={inputId}
+                  onChange={(e) => setInputId(e.target.value)}
+                />
+              </div>
+
+              {/* 버튼 영역 */}
+              <div className="mt-6 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleConfirm(idcheck);
+                  }}
+                  className="flex-1 rounded-md bg-blue-600 text-white py-2 hover:bg-blue-700 transition"
+                >
+                  확인
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(selectedItem.qnaId)}
+                  className="group relative px-4 py-2 rounded-md border overflow-hidden text-black"
+                >
+                  <span className="relative z-10">삭제</span>
+                  <span className="absolute inset-0 bg-sky-400/70 scale-0 group-hover:scale-150 transition-transform duration-500 rounded-md"></span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsVerifyOpen(false)}
+                  className="flex-1 rounded-md border border-blue-300 py-2 text-blue-700 hover:bg-blue-50 transition"
+                >
+                  취소
+                </button>
+              </div>
+
+              {/* 닫기 X (우측 상단) */}
+              <button
+                type="button"
+                onClick={() => setIsVerifyOpen(false)}
+                aria-label="닫기"
+                className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-blue-600 hover:bg-blue-50"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

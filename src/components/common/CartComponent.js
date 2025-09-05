@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { cartData } from "../../dummydata/cartData";
 import { useNavigate } from "react-router-dom";
 import { LocalStorageService, storageEnum } from "../../api/storageApi";
@@ -14,6 +14,41 @@ const CartComponent = () => {
     navigate("/phonecase/27");
   };
 
+  const [carts, setCarts] = useState([]);
+
+  useEffect(() => {
+    const findCartData = LocalStorageService.findAllByCollection(
+      storageEnum.Collection.Carts
+    );
+    if (findCartData === storageEnum.Result.Failure)
+      LocalStorageService.initData(storageEnum.Class.User, userData);
+
+    const find = LocalStorageService.findAllByCollection(
+      storageEnum.Collection.Carts
+    );
+
+    setCarts(find);
+  }, []);
+
+  // carts 값이 변경될 때마다 로그 찍기
+  useEffect(() => {
+    console.log("장바구니 상태 업데이트: ", carts);
+  }, [carts]); // carts가 변경될 때마다 실행
+
+  const changeQuantity = (e, id, parValue) => {
+    const { name, value } = e.target;
+    const resultValue = parseInt(value) + parseInt(parValue);
+
+    handleQuantity(name, resultValue > 0 ? resultValue : 1, id);
+  };
+
+  const handleQuantity = (name, value, id) => {
+    setCarts((carts) =>
+      carts.map((cart) => {
+        return cart.id === id ? { ...cart, [name]: value } : cart;
+      })
+    );
+  };
 
   //장바구니에 담긴 제품 이미지 클릭하면 해당 제품 상세페이지로 이동
   return (
@@ -33,8 +68,8 @@ const CartComponent = () => {
       <div className="flex flex-col md:flex-row gap-5">
         {/* Cart List */}
         <div className="md:w-[70%] w-full space-y-5">
-          {cartData &&
-            cartData.map((data) => (
+          {carts &&
+            carts.map((data) => (
               <div key={data.id} className="border-b pb-5 flex gap-4">
                 <div className="w-24 h-24 bg-gray-100 flex items-center justify-center rounded">
                   <img
@@ -49,21 +84,31 @@ const CartComponent = () => {
                     <div className="font-bold text-sm">{data.name}</div>
                     <button className="text-red-500 text-sm">X</button>
                   </div>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <div>{data.model}</div>
-                    {Array.isArray(data.select) &&
-                      data.select.map((item, index) => (
-                        <div key={index}>{item.design}</div>
-                      ))}
-                  </div>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <button className="px-2 border">-</button>
+                      <button
+                        className="px-2 border"
+                        name="quantity"
+                        value={data.quantity}
+                        onClick={(e) => changeQuantity(e, data.id, -1)}
+                      >
+                        -
+                      </button>
                       <input
                         type="number"
+                        name="quantity"
+                        value={data.quantity}
                         className="w-12 text-center border"
+                        readOnly
                       />
-                      <button className="px-2 border">+</button>
+                      <button
+                        className="px-2 border"
+                        name="quantity"
+                        value={data.quantity}
+                        onClick={(e) => changeQuantity(e, data.id, +1)}
+                      >
+                        +
+                      </button>
                     </div>
                     <div className="font-bold text-right text-sm">
                       {data.price}

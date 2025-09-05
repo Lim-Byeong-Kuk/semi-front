@@ -21,7 +21,6 @@ import {
 // 클래스 명과 데이터 배열을 매개 변수로 받아서,
 // 저장소의 초기 데이터를 세팅합니다.
 const initData = (className, dataArray) => {
-
   // 클래스 체크
   if (Object.values(storageEnum.Class).includes(className) === false)
     return storageEnum.Result.Failure;
@@ -148,7 +147,6 @@ const saveCollectionOne = (className, collectionName, newData) => {
     return user.id === newData.id;
   });
 
-
   const collection = findUser[collectionName];
 
   // collection 은 기존 유저 안에 있는 reviews or orders or qnas 등이다.
@@ -273,37 +271,46 @@ const updateById = (className, id, newData) => {
 };
 
 const updateCollection = (className, collectionName, newData) => {
+  console.log("updateCollection 진입");
   // enum을 통한 컬렉션에 해당하는지 체크
   if (!Object.values(storageEnum.Collection).includes(collectionName))
     return storageEnum.Result.Failure;
 
-  // user를 탐색합니다.
-  // 유효성 검사를 합니다.
-  const getData = localStorage.getItem(storageEnum.Class.User);
-  if (!isValid(getData)) return storageEnum.Result.Failure;
+  // if (!isValid(getData)) return storageEnum.Result.Failure;
 
-  // user데이터 가져오기
-  const parseData = JSON.parse(getData);
+  const users = JSON.parse(localStorage.getItem("user"));
+  console.log("users", users);
 
-  // 조건식이 빠짐
-  const anotherReviews = parseData
-    .filter((user) => user.id === newData.id)
-    .map((user) => user.reviews)
-    .flat(2)
-    .filter(
-      (review) =>
-        review[getIdByClass[className]] !== newData[getIdByClass[className]]
-    );
-  const updatedReviews = [...anotherReviews, newData];
-  const another = parseData.filter((user) => user.id !== newData.id);
-  const updatedUser = parseData.find((user) => user.id === newData.id);
-  const result = [
-    ...another,
-    { ...updatedUser, [collectionName]: updatedReviews },
-  ];
+  // 해당 User를 찾은 것입니다.
+  const findUser = users.find((user) => {
+    return user.id === newData.id;
+  });
 
-  console.log(result);
-  localStorage.setItem(storageEnum.Class.User, JSON.stringify(result));
+  const collection = findUser[collectionName];
+
+  // collection 은 기존 유저 안에 있는 reviews or orders or qnas 등이다.
+  // 이 값은 빈 배열이어도 상관없어야 한다.
+  // if (isValid(collection) === false) return storageEnum.Result.Failure;
+  const entity = createEntity(className, {
+    ...newData,
+    [getIdByClass[className]]: 0,
+  });
+
+  const anotherCollection = collection.filter(
+    (element) => element[getIdByClass[className] !== newData.id]
+  );
+  const newCollection = [...anotherCollection, entity];
+
+  const updateData = users.map((user) => {
+    var temp = null;
+    if (user.id === newData.id) {
+      temp = { ...user, [collectionName]: newCollection };
+      return temp;
+    }
+    return user;
+  });
+
+  localStorage.setItem(storageEnum.Class.User, JSON.stringify(updateData));
 
   return storageEnum.Result.Success;
 };
@@ -335,7 +342,7 @@ const deleteById = (className, id) => {
 
 // 비공개 용도입니다.
 // collection의 id를 통해 해당 배열들을 반환합니다.
-const findUserCollectionId = (collectionName, className, collectionId) => {
+const findUserCollectionId = (className, collectionName, collectionId) => {
   // collectionId를 통해 데이터를 뽑아냅니다.
   const findCollection = findAllByCollection(collectionName).find(
     (data) => String(data[getIdByClass[className]]) === String(collectionId)
@@ -353,34 +360,44 @@ const findUserCollectionId = (collectionName, className, collectionId) => {
   return findUser;
 };
 
-const deleteByCollection = (className, collectionName, id, dataId) => {
-  // user찾기
-  // const findUser = findUserCollectionId(collectionName,className, dataId);
+const deleteByCollection = (className, collectionName, dataId) => {
+  console.log("deleteByCollection 진입");
 
   // enum을 통한 컬렉션에 해당하는지 체크
   if (!Object.values(storageEnum.Collection).includes(collectionName))
     return storageEnum.Result.Failure;
-  // user를 탐색합니다.
-  // 유효성 검사를 합니다.
-  const getData = localStorage.getItem(storageEnum.Class.User);
-  if (!isValid(getData)) return storageEnum.Result.Failure;
-  // user데이터 가져오기
-  const parseData = JSON.parse(getData);
-  // 조건식이 빠짐
-  const oneDeletedReviews = parseData
-    .map((user) => user.reviews)
-    .flat(2)
-    .filter((review) => review.id === id)
-    .filter((review) => review[getIdByClass[className]] !== dataId);
-  const another = parseData.filter((user) => user.id !== id);
-  const updatedUser = parseData.find((user) => user.id === id);
-  const result = [
-    ...another,
-    { ...updatedUser, [collectionName]: oneDeletedReviews },
-  ];
-  console.log(result);
-  localStorage.setItem(storageEnum.Class.User, JSON.stringify(result));
-  return storageEnum.Result.Failure;
+
+  // if (!isValid(getData)) return storageEnum.Result.Failure;
+
+  const users = JSON.parse(localStorage.getItem("user"));
+  console.log("users", users);
+
+  // 해당 User를 찾은 것입니다.
+  // const findUser = users.find((user) => {
+  //   return user.id === newData.id;
+  // });
+  const findUser = findUserCollectionId(className, collectionName, dataId);
+
+  const collection = findUser[collectionName];
+
+  // collection 은 기존 유저 안에 있는 reviews or orders or qnas 등이다.
+  // 이 값은 빈 배열이어도 상관없어야 한다.
+  // if (isValid(collection) === false) return storageEnum.Result.Failure;
+  const oneDeletedCollection = collection.filter(
+    (collections) => collections[getIdByClass[className] !== dataId]
+  );
+
+  const updateData = users.map((user) => {
+    var temp = null;
+    if (user.id === findUser.id) {
+      temp = { ...user, [collectionName]: oneDeletedCollection };
+      return temp;
+    }
+    return user;
+  });
+
+  localStorage.setItem(storageEnum.Class.User, JSON.stringify(updateData));
+  return storageEnum.Result.Success;
 };
 
 // 데이터 초기화 기능입니다.

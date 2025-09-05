@@ -26,13 +26,14 @@ const ReviewComponent = forwardRef(({}, ref) => {
     const allUserReviews = LocalStorageService.findAllByCollection(
       storageEnum.Collection.Reviews
     );
+    if (allUserReviews === storageEnum.Result.Failure) return [];
     const productReviews = allUserReviews.filter(
       (review) => review.productId === parseInt(productId)
     );
     return productReviews;
   });
 
-  // 수정된 버전
+  //
   useEffect(() => {
     // productId가 변경될 때마다 리뷰 목록을 다시 불러옴
     updateReviewList();
@@ -62,16 +63,17 @@ const ReviewComponent = forwardRef(({}, ref) => {
     const allReviews =
       LocalStorageService.findAllByCollection(storageEnum.Collection.Reviews) ||
       [];
+    if (allReviews === storageEnum.Result.Failure) return [];
     const productReviews = allReviews.filter(
       (rev) => rev.productId === parseInt(productId)
     );
     setReviewList(productReviews);
   };
 
-  //리뷰를 작성하기 전에 모든 입력 필드가 비어 있지 않은지 확인하는 함수
+  // 리뷰를 작성하기 전에 모든 입력 필드가 비어 있지 않은지 확인
   const validateFields = (data) => {
-    if (!data.title.trim() || !data.id.trim() || !data.detail.trim()) {
-      alert("제목/이름/내용을 모두 입력해 주세요");
+    if (!data.title.trim() || !data.detail.trim()) {
+      alert("제목/내용을 모두 입력해 주세요");
       return false;
     } else {
       return true;
@@ -117,44 +119,66 @@ const ReviewComponent = forwardRef(({}, ref) => {
   };
 
   // 리뷰 삭제 handler
-  const deleteHandler = (id) => {
-    alert(`삭제 완료`);
-    const updateReview = LocalStorageService.deleteById(
-      storageEnum.Class.Review,
-      id
-    );
-    console.log(updateReview);
-    if (storageEnum.Result.Failure === updateReview) {
-      return;
+  const deleteHandler = (reviewId, id) => {
+    console.log("삭제 test -> ", user.id, id);
+    if (user.id === id) {
+      alert(`삭제 완료`);
+
+      LocalStorageService.deleteByCollection(
+        storageEnum.Class.Review,
+        storageEnum.Collection.Reviews,
+        reviewId
+      );
     } else {
-      setReviewList(LocalStorageService.findAll(storageEnum.Class.Review));
+      alert(`본인이 작성.한 리뷰만 삭제할 수 있습니다`);
     }
-    setChange(!isChange);
+
+    updateReviewList();
+
+    // if (storageEnum.Result.Failure === updateReview) {
+    //   console.log("실패확인");
+    //   return;
+    // } else {
+    //   setReviewList(LocalStorageService.findAll(storageEnum.Class.Review));
+    // }
+    // setChange(!isChange);
   };
 
   // 리뷰 수정 시작
   const startEdit = (r) => {
-    setEditingId(r.reviewId);
-    setDraft({ title: r.title, id: r.id, detail: r.detail });
+    console.log("수정 test -> ", user.id, r.id);
+    if (user.id === r.id) {
+      setEditingId(r.reviewId);
+      setDraft({ title: r.title, detail: r.detail });
+    } else {
+      alert(`본인이 작성한 리뷰만 수정할 수 있습니다.`);
+    }
   };
 
   // 인라인 수정 저장
   const saveEdit = (editId) => {
     if (!validateFields(draft)) return;
-    let reviewObj = reviewList.find((rev) => rev.reviewId === editId);
+
+    let reviewObj = reviewList.find((r) => r.reviewId === editId);
+    console.log("리뷰 수정 test -> ", reviewObj.reviewId, editId);
     reviewObj = { ...reviewObj, ...draft, date: new Date().toLocaleString() };
-    LocalStorageService.updateById(storageEnum.Class.Review, editId, reviewObj);
+    LocalStorageService.updateCollection(
+      storageEnum.Class.Review,
+      storageEnum.Collection.Reviews,
+      reviewObj
+    );
+    updateReviewList();
 
     alert("리뷰 수정 완료");
     setEditingId(null);
-    setDraft({ title: "", id: "", detail: "" });
-    setChange(!isChange);
+    setDraft({ title: "", detail: "" });
+    // setChange(!isChange);
   };
 
   // 인라인 수정 취소
   const cancelEdit = () => {
     setEditingId(null);
-    setDraft({ title: "", id: "", detail: "" });
+    setDraft({ title: "", detail: "" });
   };
 
   // 리뷰 텍스트 입력 핸들러
@@ -255,7 +279,7 @@ const ReviewComponent = forwardRef(({}, ref) => {
                   <>
                     <button
                       className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
-                      onClick={() => deleteHandler(review.reviewId)}
+                      onClick={() => deleteHandler(review.reviewId, review.id)}
                     >
                       삭제하기
                     </button>

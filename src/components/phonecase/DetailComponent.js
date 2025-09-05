@@ -132,7 +132,7 @@ const DetailComponent = () => {
       <ReviewComponent ref={reviewRef} />
       {/* 페이지 버튼 */}
       <div className="flex justify-center gap-2">
-        {[1, 2, 3].map((page) => (
+        {[1].map((page) => (
           <button
             key={page}
             className="px-4 py-2 border rounded hover:bg-gray-100"

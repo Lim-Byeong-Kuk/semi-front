@@ -362,6 +362,7 @@ const findUserCollectionId = (className, collectionName, collectionId) => {
 
 const deleteByCollection = (className, collectionName, dataId) => {
   console.log("deleteByCollection 진입");
+  console.log("dataId : ", dataId);
 
   // enum을 통한 컬렉션에 해당하는지 체크
   if (!Object.values(storageEnum.Collection).includes(collectionName))
@@ -377,14 +378,15 @@ const deleteByCollection = (className, collectionName, dataId) => {
   //   return user.id === newData.id;
   // });
   const findUser = findUserCollectionId(className, collectionName, dataId);
-
+  console.log("findUser", findUser);
   const collection = findUser[collectionName];
 
   // collection 은 기존 유저 안에 있는 reviews or orders or qnas 등이다.
   // 이 값은 빈 배열이어도 상관없어야 한다.
   // if (isValid(collection) === false) return storageEnum.Result.Failure;
+  console.log("collection", collection);
   const oneDeletedCollection = collection.filter(
-    (collections) => collections[getIdByClass[className] !== dataId]
+    (element) => element[getIdByClass[className]] !== dataId
   );
 
   const updateData = users.map((user) => {

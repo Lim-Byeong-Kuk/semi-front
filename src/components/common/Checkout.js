@@ -40,7 +40,7 @@ const Checkout = () => {
   const [showModal, setShowModal] = useState(false);
   const [navigateModal, setNavigateModal] = useState(false);
   const navigate = useNavigate();
-  const { userId } = useParams();
+  // const { userId } = useParams();
   const { findAll, findAllByCollection } = LocalStorageService;
   const { user, loginCheck } = useContext(LoginContext);
 
@@ -85,9 +85,9 @@ const Checkout = () => {
     // console.log("price : ", price);
   };
 
-  useEffect(() => {
-    updatePrice();
-  }, [userId]);
+  // useEffect(() => {
+  //   updatePrice();
+  // }, [userId]);
 
   useEffect(() => {
     const users = JSON.parse(localStorage.getItem("user"));
@@ -181,7 +181,7 @@ const Checkout = () => {
       orderRecordDto
     );
 
-    // navigate(`/paymentcomplete/${newOrderCode}`);
+    navigate(`/paymentcomplete/${newOrderCode}`);
   };
 
   return (

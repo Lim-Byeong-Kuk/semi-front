@@ -21,7 +21,8 @@ export const userData = [
         name: "그려용 커스텀 방탄케이스",
         quantity: 2,
         singlePrice: 10000,
-        img: "https://akan.co.kr/upload/products/NEVER/KN0284/thumb-single-graybg.webp",
+        image:
+          "https://akan.co.kr/upload/products/NEVER/KN0284/thumb-single-graybg.webp",
       },
       {
         cartId: 3,
@@ -85,7 +86,8 @@ export const userData = [
         name: "그려용 커스텀 방탄케이스",
         quantity: 2,
         singlePrice: 10000,
-        img: "https://akan.co.kr/upload/products/NEVER/KN0284/thumb-single-graybg.webp",
+        image:
+          "https://akan.co.kr/upload/products/NEVER/KN0284/thumb-single-graybg.webp",
       },
     ],
     reviews: [
@@ -118,7 +120,7 @@ export const userData = [
       {
         cartId: 9,
         productId: 1,
-        id: "sora1228",
+        id: "dbfk",
         name: "나만의 커스텀 방탄케이스",
         quantity: 1,
         singlePrice: "9000",
@@ -177,7 +179,8 @@ export const userData = [
         name: "그려용 커스텀 방탄케이스",
         quantity: 2,
         singlePrice: 10000,
-        img: "https://akan.co.kr/upload/products/NEVER/KN0284/thumb-single-graybg.webp",
+        image:
+          "https://akan.co.kr/upload/products/NEVER/KN0284/thumb-single-graybg.webp",
       },
       {
         cartId: 8,

@@ -1,11 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { phonecaseProducts } from "../../dummydata/phonecaseProducts";
 import { useNavigate, useParams } from "react-router-dom";
 import { getOne } from "../../api/shopApi";
 import ReviewComponent from "./ReviewComponent";
+import { LocalStorageService, storageEnum } from "../../api/storageApi";
+import { LoginContext } from "../../api/context/LoginContext";
 
 const DetailComponent = () => {
   const { productId } = useParams();
+  const { user, loginCheck } = useContext(LoginContext);
   const productDetail = useRef(null);
   const purchaseInformation = useRef(null);
   const reviewRef = useRef(null);
@@ -24,6 +27,20 @@ const DetailComponent = () => {
   }, []);
 
   const moveToCartPageHandler = () => {
+    const product = getOne(productId);
+    const cart = {
+      ...product,
+      quantity: 1,
+      singlePrice: product.price,
+      id: user.id,
+    };
+
+    LocalStorageService.saveCollectionOne(
+      storageEnum.Class.Cart,
+      storageEnum.Collection.Carts,
+      cart
+    );
+
     navigate("/cart");
   };
   const moveToCheckOutHandler = () => {

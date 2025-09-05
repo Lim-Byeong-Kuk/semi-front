@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { cartData } from "../../dummydata/cartData";
 import { useNavigate } from "react-router-dom";
 import { LocalStorageService, storageEnum } from "../../api/storageApi";
 import { userData } from "../../dummydata/userData";
+import { LoginContext } from "../../api/context/LoginContext";
 
 const CartComponent = () => {
+  const { user, loginCheck } = useContext(LoginContext);
+  const [deliveryFee, setDeliveryFee] = useState(3000);
+  const [isChange, setChange] = useState(false);
+
   const navigate = useNavigate();
 
   const moveToHandler = () => {
@@ -17,23 +22,16 @@ const CartComponent = () => {
   const [carts, setCarts] = useState([]);
 
   useEffect(() => {
-    const findCartData = LocalStorageService.findAllByCollection(
-      storageEnum.Collection.Carts
-    );
-    if (findCartData === storageEnum.Result.Failure)
-      LocalStorageService.initData(storageEnum.Class.User, userData);
-
-    const find = LocalStorageService.findAllByCollection(
-      storageEnum.Collection.Carts
-    );
-
-    setCarts(find);
+    loginCheck();
+    // 데이터 로드
+    setCarts(loadCartData());
   }, []);
 
   // carts 값이 변경될 때마다 로그 찍기
   useEffect(() => {
-    console.log("장바구니 상태 업데이트: ", carts);
-  }, [carts]); // carts가 변경될 때마다 실행
+    console.log("수정");
+    setCarts(loadCartData());
+  }, [isChange]); // carts가 변경될 때마다 실행
 
   const changeQuantity = (e, id, parValue) => {
     const { name, value } = e.target;
@@ -45,9 +43,43 @@ const CartComponent = () => {
   const handleQuantity = (name, value, id) => {
     setCarts((carts) =>
       carts.map((cart) => {
-        return cart.id === id ? { ...cart, [name]: value } : cart;
+        return cart.cartId === id ? { ...cart, [name]: value } : cart;
       })
     );
+  };
+
+  const getCartSum = () => {
+    return carts.reduce(
+      (sum, cart) => sum + cart.singlePrice * cart.quantity,
+      0
+    );
+  };
+
+  const loadCartData = () => {
+    const findCartData = LocalStorageService.findAllByCollection(
+      storageEnum.Collection.Carts
+    );
+    if (findCartData === storageEnum.Result.Failure)
+      LocalStorageService.initData(storageEnum.Class.User, userData);
+
+    const find = LocalStorageService.findAllByCollection(
+      storageEnum.Collection.Carts
+    );
+
+    var findCart = find.filter((cart) => cart.id === user.id);
+    if (findCart === storageEnum.Result.Failure) findCart = [];
+
+    return findCart;
+  };
+
+  const deleteCartData = (cartId) => {
+    LocalStorageService.deleteByCollection(
+      storageEnum.Class.Cart,
+      storageEnum.Collection.Carts,
+      cartId
+    );
+
+    setChange(!isChange);
   };
 
   //장바구니에 담긴 제품 이미지 클릭하면 해당 제품 상세페이지로 이동
@@ -69,49 +101,56 @@ const CartComponent = () => {
         {/* Cart List */}
         <div className="md:w-[70%] w-full space-y-5">
           {carts &&
-            carts.map((data) => (
-              <div key={data.id} className="border-b pb-5 flex gap-4">
+            carts.map((cart) => (
+              <div key={cart.id} className="border-b pb-5 flex gap-4">
                 <div className="w-24 h-24 bg-gray-100 flex items-center justify-center rounded">
                   <img
-                    src={data.img}
-                    alt={data.name}
+                    src={cart.image}
+                    alt={cart.name}
                     className="w-full h-full object-contain"
                     onClick={moveToImgHandler}
                   />
                 </div>
                 <div className="flex-1 flex flex-col gap-4">
                   <div className="flex justify-between items-center">
-                    <div className="font-bold text-sm">{data.name}</div>
-                    <button className="text-red-500 text-sm">X</button>
+                    <div className="font-bold text-sm">
+                      {cart.name + cart.id + "/" + cart.cartId}
+                    </div>
+                    <button
+                      className="text-red-500 text-sm"
+                      onClick={() => deleteCartData(cart.cartId)}
+                    >
+                      X
+                    </button>
                   </div>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <button
                         className="px-2 border"
                         name="quantity"
-                        value={data.quantity}
-                        onClick={(e) => changeQuantity(e, data.id, -1)}
+                        value={cart.quantity}
+                        onClick={(e) => changeQuantity(e, cart.cartId, -1)}
                       >
                         -
                       </button>
                       <input
                         type="number"
                         name="quantity"
-                        value={data.quantity}
+                        value={cart.quantity}
                         className="w-12 text-center border"
                         readOnly
                       />
                       <button
                         className="px-2 border"
                         name="quantity"
-                        value={data.quantity}
-                        onClick={(e) => changeQuantity(e, data.id, +1)}
+                        value={cart.quantity}
+                        onClick={(e) => changeQuantity(e, cart.cartId, +1)}
                       >
                         +
                       </button>
                     </div>
                     <div className="font-bold text-right text-sm">
-                      {data.price}
+                      {cart.quantity * cart.singlePrice}원
                     </div>
                   </div>
                 </div>
@@ -124,10 +163,18 @@ const CartComponent = () => {
           <div className="border p-4 space-y-4">
             <div>
               <h5 className="font-semibold mb-2">주문상품</h5>
-              <div className="text-sm space-y-1">
-                <h5>총 상품금액</h5>
-                <h5>총 배송비</h5>
+              <div className="text-sm space-y-1"></div>
+              <div className="flex justify-between mt-2 text-sm">
+                <div className="space-y-1">
+                  <h5>총 상품금액</h5>
+                  <h5>총 배송비</h5>
+                </div>
+                <div className="text-right space-y-1">
+                  <h5>{carts ? getCartSum() : 0}원</h5>
+                  <h5>{deliveryFee}원</h5>
+                </div>
               </div>
+              <br />
               <div className="flex justify-between mt-2 text-sm">
                 <div className="space-y-1">
                   <h5>결제예정금액</h5>
@@ -135,9 +182,22 @@ const CartComponent = () => {
                   <h5>→상품별 적립금</h5>
                 </div>
                 <div className="text-right space-y-1">
-                  <h5>50,800원</h5>
-                  <h5>최대 250원</h5>
-                  <h5>250원</h5>
+                  {/* 장바구니의 합계와 배송비를 더함 */}
+                  <h5>{carts ? getCartSum() + deliveryFee : 0}원</h5>
+                  {/* 5% 적립 */}
+                  <h5>{carts ? getCartSum() * 0.05 : 0}원</h5>
+                  {carts ? (
+                    <div>
+                      {carts.map((cart) => (
+                        <div>
+                          {cart.name} {cart.quantity * cart.singlePrice * 0.05}
+                          원 적립
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <h5>0원</h5>
+                  )}
                 </div>
               </div>
             </div>

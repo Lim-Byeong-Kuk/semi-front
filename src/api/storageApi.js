@@ -300,6 +300,7 @@ const updateCollection = (className, collectionName, newData) => {
   const anotherCollection = collection.filter(
     (element) =>
       element[getIdByClass[className]] !== newData[getIdByClass[className]]
+    //(element) => element[getIdByClass[className]] !== newData.id
   );
   const newCollection = [...anotherCollection, entity];
 

@@ -38,19 +38,20 @@ const Checkout = () => {
   const [productsPrice, setProductsPrice] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [navigateModal, setNavigateModal] = useState(false);
   const navigate = useNavigate();
   const { userId } = useParams();
   const { findAll, findAllByCollection } = LocalStorageService;
   const { user, loginCheck } = useContext(LoginContext);
 
-  const [shippingAddress, setShippingAddress] = useState({
-    name: "",
-    postcode: "",
-    roadAddress: "",
-    detailAddress: "",
-    phoneNum: "",
-    deleveryInstruction: "부재 시 문 앞에 놓아주세요",
-  });
+  // const [shippingAddress, setShippingAddress] = useState({
+  //   name: "",
+  //   postcode: "",
+  //   roadAddress: "",
+  //   detailAddress: "",
+  //   phoneNum: "",
+  //   deleveryInstruction: "부재 시 문 앞에 놓아주세요",
+  // });
 
   const [orderRecord, setOrderRecord] = useState({
     orderId: 0,
@@ -64,18 +65,35 @@ const Checkout = () => {
     paymentOption: "무통장 입금",
     orderCode: "",
     date: "",
+    id: "",
   });
 
-  useEffect(() => {
+  const navigateModalConfirm = () => {
+    setNavigateModal(false);
+    navigate("/login");
+  };
+
+  const updatePrice = () => {
     const allCarts = findAllByCollection(storageEnum.Collection.Carts);
-    console.log(user.id);
     const myCarts = allCarts.filter((cart) => cart.id === user.id);
     const price = myCarts
       .map((cart) => cart.quantity * cart.singlePrice)
       .reduce((acc, i) => acc + i, 0);
-    console.log(price);
     setProductsPrice(price);
     setTotalPrice(price + 3000);
+    // console.log("user.id : ", user.id);
+    // console.log("price : ", price);
+  };
+
+  useEffect(() => {
+    updatePrice();
+  }, [userId]);
+
+  useEffect(() => {
+    const users = JSON.parse(localStorage.getItem("user"));
+    console.log("users", users);
+    updatePrice();
+    setNavigateModal(!user.isLogin);
   }, []);
 
   /* daum 우편번호 API 사용 */
@@ -83,7 +101,7 @@ const Checkout = () => {
     new window.daum.Postcode({
       oncomplete: (data) => {
         // 선택한 데이터 가져오기
-        setShippingAddress((prev) => ({
+        setOrderRecord((prev) => ({
           ...prev,
           postcode: data.zonecode,
           roadAddress: data.roadAddress,
@@ -127,27 +145,43 @@ const Checkout = () => {
   };
 
   const createOrderRecord = (newOrderCode) => {
-    setOrderRecord((prev) => {
-      const orderRecord = {
-        ...prev,
-        phoneNum: `${phoneFirst}${phoneSecond}${phoneThird}`,
-        totalPrice: totalPrice,
-        paymentOption: paymentOption,
-        orderCode: newOrderCode,
-        date: new Date().toLocaleString(),
-      };
-      console.log(orderRecord);
-      return orderRecord;
-    });
+    // setOrderRecord((prev) => {
+    //   const orderRecordDto = {
+    //     ...prev,
+    //     phoneNum: `${phoneFirst}${phoneSecond}${phoneThird}`,
+    //     totalPrice: totalPrice,
+    //     paymentOption: paymentOption,
+    //     orderCode: newOrderCode,
+    //     id: user.id,
+    //     date: new Date().toLocaleString(),
+    //   };
+    //   return orderRecordDto;
+    // });
+    const orderRecordDto = {
+      ...orderRecord,
+      phoneNum: `${phoneFirst}${phoneSecond}${phoneThird}`,
+      totalPrice: totalPrice,
+      paymentOption: paymentOption,
+      orderCode: newOrderCode,
+      id: user.id,
+      date: new Date().toLocaleString(),
+    };
+    return orderRecordDto;
   };
 
   const confirmHandler = () => {
     setShowModal(false);
     const newOrderCode = generateOrderCode();
+    const orderRecordDto = createOrderRecord(newOrderCode);
+    console.log("orderRecordDto : ", orderRecordDto);
 
-    createOrderRecord(newOrderCode);
+    LocalStorageService.saveCollectionOne(
+      storageEnum.Class.Order,
+      storageEnum.Collection.Orders,
+      orderRecordDto
+    );
 
-    navigate(`/paymentcomplete/${newOrderCode}`);
+    // navigate(`/paymentcomplete/${newOrderCode}`);
   };
 
   return (
@@ -166,7 +200,7 @@ const Checkout = () => {
               <input
                 type="text"
                 name="name"
-                value={shippingAddress.name}
+                value={orderRecord.name}
                 onChange={(e) => changeHandler(e)}
                 className="mt-1 w-full border rounded-lg p-2 text-sm"
                 placeholder="이름 입력"
@@ -178,7 +212,7 @@ const Checkout = () => {
                 <input
                   type="text"
                   name="postcode"
-                  value={shippingAddress.postcode}
+                  value={orderRecord.postcode}
                   className="flex-1 border rounded-lg p-2 text-sm"
                   readOnly
                   placeholder="우편번호"
@@ -194,7 +228,7 @@ const Checkout = () => {
               <input
                 type="text"
                 name="roadAddress"
-                value={shippingAddress.roadAddress}
+                value={orderRecord.roadAddress}
                 readOnly
                 placeholder="기본주소"
                 className="w-full border rounded-lg p-2 text-sm mb-2"
@@ -202,7 +236,7 @@ const Checkout = () => {
               <input
                 type="text"
                 name="detailAddress"
-                value={shippingAddress.detailAddress}
+                value={orderRecord.detailAddress}
                 onChange={(e) => changeHandler(e)}
                 className="w-full border rounded-lg p-2 text-sm"
                 placeholder="나머지 주소"
@@ -253,8 +287,8 @@ const Checkout = () => {
             <div>
               <label className="block text-sm font-medium">배송 메시지</label>
               <select
-                name="deleveryInstruction"
-                value={shippingAddress.deleveryInstruction}
+                name="deliveryInstruction"
+                value={orderRecord.deliveryInstruction}
                 onChange={(e) => changeHandler(e)}
                 className="mt-1 w-full border rounded-lg p-2 text-sm"
               >
@@ -345,7 +379,7 @@ const Checkout = () => {
         </p>
       </footer>
 
-      {/* 모달 */}
+      {/* 결제확인 버튼 누를시 띄우는 결제확인 모달 */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           <div className="bg-white rounded-2xl shadow-lg p-6 w-80 text-center">
@@ -355,6 +389,23 @@ const Checkout = () => {
             </p>
             <button
               onClick={confirmHandler}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
+            >
+              확인하기
+            </button>
+          </div>
+        </div>
+      )}
+      {/* 로그인 안했을 시 띄우는 네비게이트 모달 */}
+      {navigateModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-80 text-center">
+            <h3 className="text-lg font-semibold mb-3">로그인 필요</h3>
+            <p className="text-gray-600 mb-6">
+              로그인 후 이용하실 수 있습니다.
+            </p>
+            <button
+              onClick={navigateModalConfirm}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
             >
               확인하기

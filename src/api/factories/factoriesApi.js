@@ -4,6 +4,7 @@ import { User } from "./User";
 import { Comment } from "./Comment";
 import { Review } from "./Review";
 import { QnA } from "./QnA";
+import { Order } from "./Order";
 
 export const storageEnum = {
   Result: {
@@ -19,6 +20,7 @@ export const storageEnum = {
     Comment: "comment",
     Review: "review",
     QnA: "qna",
+    Order: "order",
   },
 
   Collection: {
@@ -26,6 +28,7 @@ export const storageEnum = {
     Reviews: "reviews",
     QnAs: "qnas",
     Products: "products",
+    Orders: "orders",
   },
 };
 
@@ -36,9 +39,11 @@ export const getIdByClass = {
   [storageEnum.Class.Comment]: "commentId",
   [storageEnum.Class.Review]: "reviewId",
   [storageEnum.Class.QnA]: "qnaId",
+  [storageEnum.Class.Order]: "orderId",
 };
 
 export const isValid = (data) => {
+  if (data === 0) return false;
   // 널 , 언디파인 체크
   if (data === null || data === undefined) return false;
 
@@ -140,6 +145,14 @@ export function createEntity(className, data) {
       if (QnA.validate(data) === false) break;
 
       instance = QnA.create(data);
+      break;
+    }
+    case storageEnum.Class.Order: {
+      // 클래스의 여부를 체크합니다.
+      // 유효하지 않은 경우 바로 break 합니다.
+      if (Order.validate(data) === false) break;
+
+      instance = Order.create(data);
       break;
     }
   }

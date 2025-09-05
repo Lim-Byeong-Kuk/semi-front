@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LoginContext } from "../../api/context/LoginContext";
 
 const PaymentComplete = () => {
   const navigate = useNavigate();
+  const [navigateModal, setNavigateModal] = useState(false);
+  const { user } = useContext(LoginContext);
+
+  useEffect(() => {
+    setNavigateModal(!user.isLogin);
+  }, []);
+
+  const navigateModalConfirm = () => {
+    setNavigateModal(false);
+    navigate("/login");
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
@@ -65,6 +77,24 @@ const PaymentComplete = () => {
         >
           홈으로
         </button>
+
+        {/* 로그인 안했을 시 띄우는 네비게이트 모달 */}
+        {navigateModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+            <div className="bg-white rounded-2xl shadow-lg p-6 w-80 text-center">
+              <h3 className="text-lg font-semibold mb-3">로그인 필요</h3>
+              <p className="text-gray-600 mb-6">
+                로그인 후 이용하실 수 있습니다.
+              </p>
+              <button
+                onClick={navigateModalConfirm}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
+              >
+                확인하기
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

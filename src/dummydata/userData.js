@@ -60,8 +60,8 @@ export const userData = [
         date: "2025. 9. 3. 오후 2:11:55",
       },
     ],
-    qnas:[],
-    
+    qnas: [],
+    orders: [],
   },
   {
     userId: 2,
@@ -106,10 +106,16 @@ export const userData = [
         date: "2025. 9. 3. 오후 1:10:55",
       },
     ],
-    qnas:[],
+    qnas: [],
+    orders: [],
   },
   // qnaId, title, content, writer, date,images, href
-  { userId: 3, id: "dbfk", pwd: 1234, carts: [{
+  {
+    userId: 3,
+    id: "dbfk",
+    pwd: 1234,
+    carts: [
+      {
         cartId: 9,
         productId: 1,
         id: "sora1228",
@@ -118,30 +124,37 @@ export const userData = [
         singlePrice: "9000",
         image:
           "https://akan.co.kr/upload/products/NEVER/AN9999/thumb-single-graybg.webp",
-      }], reviews: [], qnas: [{
-    qnaId: 1,
-    id:"dbfk",
-    title: "중순까지 배달 가능한가요?",
-    content: "가능하면 날짜 맞춰 보내주세요!",
-    writer: "조형우",
-    date: "2025.09.01",
-    images: [
-      "https://akan.co.kr/upload/products/NEVER/KYJN5004/thumb-single-graybg.webp",
+      },
     ],
-    href: "#",
+    reviews: [],
+    qnas: [
+      {
+        qnaId: 1,
+        id: "dbfk",
+        title: "중순까지 배달 가능한가요?",
+        content: "가능하면 날짜 맞춰 보내주세요!",
+        writer: "조형우",
+        date: "2025.09.01",
+        images: [
+          "https://akan.co.kr/upload/products/NEVER/KYJN5004/thumb-single-graybg.webp",
+        ],
+        href: "#",
+      },
+      {
+        qnaId: 2,
+        id: "dbfk",
+        title: "언제 배송 되나요?",
+        content: "주문번호 12345 입니다.",
+        writer: "김유라",
+        date: "2025.09.01",
+        images: [
+          "https://akan.co.kr/upload/products/MDBUMP/AQ9999/thumb-single-graybg.webp",
+        ],
+        href: "#",
+      },
+    ],
+    orders: [],
   },
-  {
-    qnaId: 2,
-    id:"dbfk",
-    title: "언제 배송 되나요?",
-    content: "주문번호 12345 입니다.",
-    writer: "김유라",
-    date: "2025.09.01",
-    images: [
-      "https://akan.co.kr/upload/products/MDBUMP/AQ9999/thumb-single-graybg.webp",
-    ],
-    href: "#",
-  },] },
   {
     userId: 4,
     id: "bk",
@@ -187,7 +200,7 @@ export const userData = [
         date: "2025. 9. 3. 오후 2:14:55",
       },
     ],
-    qnas:[],
-    paymentrecords: [{}, {}, {}],
+    qnas: [],
+    orders: [],
   },
 ];

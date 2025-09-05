@@ -21,7 +21,7 @@ import {
 // 클래스 명과 데이터 배열을 매개 변수로 받아서,
 // 저장소의 초기 데이터를 세팅합니다.
 const initData = (className, dataArray) => {
-  console.log("initData진입");
+
   // 클래스 체크
   if (Object.values(storageEnum.Class).includes(className) === false)
     return storageEnum.Result.Failure;
@@ -133,59 +133,41 @@ const saveByOne = (className, newData) => {
 // 데이터를 한 개 추가하는 기능입니다.
 // 데이터를 단일 객체로 받습니다.
 const saveCollectionOne = (className, collectionName, newData) => {
+  console.log("saveCollectionOne 진입");
   // enum을 통한 컬렉션에 해당하는지 체크
   if (!Object.values(storageEnum.Collection).includes(collectionName))
     return storageEnum.Result.Failure;
 
-  // user를 불러옵니다.
-  // 유효성 검사를 합니다.
-  const getData = localStorage.getItem(storageEnum.Class.User);
-  if (!isValid(getData)) return storageEnum.Result.Failure;
+  // if (!isValid(getData)) return storageEnum.Result.Failure;
 
-  // User데이터를 파싱합니다.
-  const parseData = JSON.parse(getData);
+  const users = JSON.parse(localStorage.getItem("user"));
+  console.log("users", users);
 
-  const cnt = 0;
-  // 유저들
-  const ids = parseData
-    .map((user) => user[collectionName])
-    .flat(2)
-    .map((review) => review[getIdByClass[className]]);
-
-  const maxId = Math.max(...ids);
-
-  // User안에 collectionName을 불러옵니다.
   // 해당 User를 찾은 것입니다.
-  const findCollection = parseData.find((data) => {
-    console.log("data.id", data.id);
-    console.log("newData.id", newData.id);
-
-    return data.id === newData.id;
+  const findUser = users.find((user) => {
+    return user.id === newData.id;
   });
 
-  console.log("findCollection", findCollection);
 
-  const collection = findCollection[collectionName];
+  const collection = findUser[collectionName];
 
-  // 혹시나 데이터 검사
-  if (isValid(collection) === false) return storageEnum.Result.Failure;
+  // collection 은 기존 유저 안에 있는 reviews or orders or qnas 등이다.
+  // 이 값은 빈 배열이어도 상관없어야 한다.
+  // if (isValid(collection) === false) return storageEnum.Result.Failure;
   const entity = createEntity(className, {
     ...newData,
-    [getIdByClass[className]]: maxId + 1,
+    [getIdByClass[className]]: 0,
   });
 
-  // 데이터 삽입
-  collection.push(entity);
-  console.log(collection);
+  const newCollection = [...collection, entity];
 
-  const updateData = parseData.map((data) => {
+  const updateData = users.map((user) => {
     var temp = null;
-    if (data.id === newData.id) {
-      temp = { ...data, [collectionName]: data[collectionName] };
-      console.log("확인", temp);
+    if (user.id === newData.id) {
+      temp = { ...user, [collectionName]: newCollection };
       return temp;
     }
-    return data;
+    return user;
   });
 
   localStorage.setItem(storageEnum.Class.User, JSON.stringify(updateData));

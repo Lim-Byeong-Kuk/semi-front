@@ -298,9 +298,12 @@ const updateCollection = (className, collectionName, newData) => {
   });
 
   const anotherCollection = collection.filter(
-    (element) => element[getIdByClass[className]] !== newData.id
+    (element) =>
+      element[getIdByClass[className]] !== newData[getIdByClass[className]]
   );
   const newCollection = [...anotherCollection, entity];
+
+  console.log("newCollection", newCollection);
 
   const updateData = users.map((user) => {
     var temp = null;

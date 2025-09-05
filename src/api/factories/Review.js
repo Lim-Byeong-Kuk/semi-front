@@ -36,13 +36,15 @@ export class Review {
 
   // 저장소에서 pno의 값을 확인합니다.
   static getNextId() {
-    const reviews =
-      JSON.parse(localStorage.getItem(storageEnum.Class.Review)) || [];
+    const users = JSON.parse(localStorage.getItem("user"));
+    const allReviews = users.map((user) => user.reviews).flat(2) || [];
 
     // 데이터에 문제가 있다면 1번을 부여합니다.
-    if (isValid(reviews) === false) return 1;
+    if (allReviews.length === 0) return 1;
 
-    const maxPno = Math.max(...reviews.map((reviews) => reviews.reviewId || 0));
+    const maxPno = Math.max(
+      ...allReviews.map((reviews) => reviews.reviewId || 0)
+    );
     return maxPno + 1;
   }
 

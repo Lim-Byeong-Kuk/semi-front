@@ -205,7 +205,7 @@ export default function MainComponent() {
           </div>
         </div>
         <Link
-          to="/phonease/QandAComponent"
+          to="/qanda"
           className="fixed bottom-6 right-6 
                  flex items-center justify-center
                  w-16 h-16 rounded-full 

@@ -135,7 +135,7 @@ export const userData = [
         id: "dbfk",
         title: "중순까지 배달 가능한가요?",
         content: "가능하면 날짜 맞춰 보내주세요!",
-        writer: "조형우",
+        writer: "김유라",
         date: "2025.09.01",
         images: [
           "https://akan.co.kr/upload/products/NEVER/KYJN5004/thumb-single-graybg.webp",

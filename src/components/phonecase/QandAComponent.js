@@ -8,32 +8,6 @@ import { LocalStorageService, storageEnum } from "../../api/storageApi";
 import { LoginContext } from "../../api/context/LoginContext";
 import { User } from "../../api/factories/User";
 
-// 예시 데이터 (최초 1회 시드용)
-const INITIAL_ITEMS = [
-  {
-    qnaId: 2,
-    title: "언제 배송 되나요?",
-    content: "주문번호 12345 입니다.",
-    writer: "김*라",
-    date: "2025.09.01",
-    images: [
-      "https://akan.co.kr/upload/products/MDBUMP/AQ9999/thumb-single-graybg.webp",
-    ],
-    href: "#",
-  },
-  {
-    qnaId: 1,
-    title: "중순까지 배달 가능한가요?",
-    content: "가능하면 날짜 맞춰 보내주세요!",
-    writer: "조*우",
-    date: "2025.09.01",
-    images: [
-      "https://akan.co.kr/upload/products/NEVER/KYJN5004/thumb-single-graybg.webp",
-    ],
-    href: "#",
-  },
-];
-
 const fmtDate = (d = new Date()) => {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -121,6 +95,16 @@ export default function QandAComponent() {
     html.style.overflow = isAskOpen || isDetailOpen ? "hidden" : "";
     return () => (html.style.overflow = "");
   }, [isAskOpen, isDetailOpen]);
+
+  // 로컬스토리지에 있는 정보를 가져와 업데이트하는 함수
+  const updateItems = () => {
+    const allQnas =
+      LocalStorageService.findAllByCollection(storageEnum.Collection.QnAs) ||
+      [];
+    if (allQnas === storageEnum.Result.Failure) return [];
+    allQnas.sort((a, b) => (b.qnaId ?? 0) - (a.qnaId ?? 0));
+    setItems(allQnas);
+  };
 
   // 안전한 다음 ID
   const nextId = useMemo(() => {
@@ -229,11 +213,12 @@ export default function QandAComponent() {
 
   const checkcontroller = (checkingData) => {
     setDetailOpen(false);
-    LocalStorageService.saveCollectionOne(
+    LocalStorageService.updateCollection(
       storageEnum.Class.QnA,
       storageEnum.Collection.QnAs,
       checkingData
     );
+    updateItems();
   };
   const changHandler = (e) => {
     const { name, value } = e.target;

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function MainComponent() {
   // 섹션 E 스크롤 트리거
@@ -29,7 +30,7 @@ export default function MainComponent() {
       <div className="relative w-full aspect-[16/9] max-h-[70vh] overflow-hidden">
         {/* 1 */}
         <img
-          src="https://cdn.pixabay.com/photo/2022/09/05/17/15/vancouver-7434702_1280.jpg"
+          src="https://images.unsplash.com/photo-1576107324820-c10884700b6b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHBob25lJTIwY2FzZXxlbnwwfHwwfHx8MA%3D%3D"
           alt="슬라이드 예시1"
           className="absolute inset-0 h-full w-full object-contain 
                animate-[slide_12s_infinite] [animation-delay:0s] will-change-[opacity,transform]"
@@ -37,7 +38,7 @@ export default function MainComponent() {
         />
         {/* 2 */}
         <img
-          src="https://cdn.pixabay.com/photo/2025/08/11/10/07/milky-way-9767930_1280.jpg"
+          src="https://images.unsplash.com/photo-1535157412991-2ef801c1748b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cGhvbmUlMjBjYXNlfGVufDB8fDB8fHww"
           alt="슬라이드 예시2"
           className="absolute inset-0 h-full w-full object-contain 
                animate-[slide_12s_infinite] [animation-delay:4s] will-change-[opacity,transform]"
@@ -45,7 +46,7 @@ export default function MainComponent() {
         />
         {/* 3 */}
         <img
-          src="https://cdn.pixabay.com/photo/2024/12/29/00/12/dog-9297049_1280.jpg"
+          src="https://images.unsplash.com/photo-1593055454503-531d165c2ed8?q=80&w=715&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="슬라이드 예시3"
           className="absolute inset-0 h-full w-full object-contain
                animate-[slide_12s_infinite] [animation-delay:8s] will-change-[opacity,transform]"
@@ -100,10 +101,10 @@ export default function MainComponent() {
       {/* 배경 섹션 1 */}
       <section
         id="background-img"
-        className="min-h-screen bg-fixed bg-cover bg-center bg-no-repeat px-4 py-10"
+        className="min-h-screen bg-fixed bg-cover bg-center bg-no-repeat px-4 py-10 overflow-hidden"
         style={{
           backgroundImage:
-            "url('https://cdn.pixabay.com/photo/2023/08/23/14/05/brienzer-rothorn-8208608_1280.jpg')",
+            "url('https://cdn.pixabay.com/photo/2022/06/25/13/33/landscape-7283516_1280.jpg')",
         }}
       >
         <div className="mx-auto max-w-6xl">
@@ -133,7 +134,7 @@ export default function MainComponent() {
             className="min-h-screen bg-fixed bg-cover bg-center bg-no-repeat px-4 py-10"
             style={{
               backgroundImage:
-                "url('https://cdn.pixabay.com/photo/2025/07/14/16/59/kananaskis-9714444_1280.jpg')",
+                "url('https://akan.co.kr/upload/main/temp/main_section_3_bg.webp')",
             }}
           >
             <section
@@ -199,11 +200,21 @@ export default function MainComponent() {
                 ]
                   .filter(Boolean)
                   .join(" ")}
-              >
-              </div>
+              ></div>
             </section>
           </div>
         </div>
+        <Link
+          to="/phonease/QandAComponent"
+          className="fixed bottom-6 right-6 
+                 flex items-center justify-center
+                 w-16 h-16 rounded-full 
+                 bg-blue-100 text-black font-bold no-underline
+                shadow-lg transition-transform duration-200 
+                hover:scale-110 hover:bg-blue-400 hover:text-white"
+        >
+          Q&A
+        </Link>
       </section>
     </div>
   );

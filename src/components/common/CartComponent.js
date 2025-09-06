@@ -114,7 +114,7 @@ const CartComponent = () => {
                 <div className="flex-1 flex flex-col gap-4">
                   <div className="flex justify-between items-center">
                     <div className="font-bold text-sm">
-                      {cart.name + cart.id + "/" + cart.cartId}
+                      {cart.name}
                     </div>
                     <button
                       className="text-red-500 text-sm"
@@ -217,7 +217,8 @@ const CartComponent = () => {
                   <span className="block">네이버 ID로 간편구매</span>
                   <span className="block">네이버페이</span>
                 </div>
-                <button className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-green-600">
+                <button className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-green-600"
+                onClick={moveToHandler}>
                   N Pay 구매
                 </button>
               </div>
@@ -228,7 +229,8 @@ const CartComponent = () => {
                   <span className="block">kakao</span>
                   <span className="block">톡체크아웃</span>
                 </div>
-                <button className="bg-yellow-400 text-black px-4 py-2 rounded text-sm font-semibold hover:bg-yellow-500">
+                <button className="bg-yellow-400 text-black px-4 py-2 rounded text-sm font-semibold hover:bg-yellow-500"
+                onClick={moveToHandler}>
                   간편구매
                 </button>
               </div>

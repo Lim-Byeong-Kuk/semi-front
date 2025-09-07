@@ -6,30 +6,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { LoginContext } from "../../api/context/LoginContext";
 import { v4 as uuidv4 } from "uuid";
 
-/*
-  여기에서 받아와야하는 데이터 : 주문한 user 를 받아 id 사용, user 안에 카트배열 사용
-  이 페이지에서 완성될 데이터 -> 결제내역
-  name:
-  postcode:
-  roadAddress:
-  detailAddress:
-  phoneNum:
-  deleveryInstruction:
-  paymentOption:
-  상품가격에 대한 정보는 장바구니 또는 제품상세페이지에서 넘어와야 함
-  주문일자,
-  결제내역번호,
-  운송번호,
-  주문번호
-
-
-  TODO :
-  - 버튼이 누르면 배송지 정보에 대한 유효성 검사(특히 이름이 제대로된 모양이어야 함)
-    를 하고 실패하면 alert 창을 띄워야 함
-  - 폰넘버는 결제버튼이 눌렸을때 세팅해주도록 한다. (010-0000-0000 1,2,3번째 번호를 따로 받았기 때문에)
-  - 결제버튼이 누르면 결제내역 데이터를 완성해서 localStorage 저장!
-*/
-
 const Checkout = () => {
   const [phoneFirst, setPhoneFirst] = useState("010");
   const [phoneSecond, setPhoneSecond] = useState("");
@@ -41,7 +17,7 @@ const Checkout = () => {
   const [navigateModal, setNavigateModal] = useState(false);
   const navigate = useNavigate();
   const { findAll, findAllByCollection } = LocalStorageService;
-  const { user, loginCheck } = useContext(LoginContext);
+  const { user } = useContext(LoginContext);
 
   const [orderRecord, setOrderRecord] = useState({
     orderId: 0,
@@ -101,18 +77,18 @@ const Checkout = () => {
     }));
   };
 
-  const generateOrderCode = () => {
-    const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
-    const uuidPart = uuidv4().split("-")[0]; // UUID 앞 8자리만 사용
-    return `${datePart}-${uuidPart}`;
-  };
-
   const paymentModalHandler = () => {
     if (!paymentOption) {
       alert("결제수단을 선택해주세요.");
       return;
     }
     setShowModal(true); // 모달 열기
+  };
+
+  const generateOrderCode = () => {
+    const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+    const uuidPart = uuidv4().split("-")[0]; // UUID 앞 8자리만 사용
+    return `${datePart}-${uuidPart}`;
   };
 
   const createOrderRecord = (newOrderCode) => {

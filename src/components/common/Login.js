@@ -31,7 +31,7 @@ const Login = () => {
     e.preventDefault();
     const id = loginform.id.trim();
     const pwd = loginform.pwd.trim();
-    const findedUser = findById(storageEnuma.Class.User, loginform.id.trim());
+    const findedUser = findById(storageEnuma.Class.User, id);
 
     if (findedUser === storageEnum.Result.Failure) {
       alert("존재하지 않는 아이디입니다.");

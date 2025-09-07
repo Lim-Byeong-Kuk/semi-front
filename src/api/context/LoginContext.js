@@ -11,8 +11,8 @@ export const LoginProvider = ({ children }) => {
       : { isLogin: false, id: "" };
   });
 
-  const login = ({ id, pwd }) => {
-    setUser({ isLogin: true, id, pwd });
+  const login = ({ id }) => {
+    setUser({ isLogin: true, id });
     localStorage.setItem("isLogin", "true");
     localStorage.setItem("loginUser", id);
   };

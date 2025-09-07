@@ -5,8 +5,8 @@ const createPageRes = (pageParam, products, totalDataCnt) => {
   const { page, size } = pageParam;
   //현재 페이지, 0 들어오지 못하도록 최소 1로 함
   const currentPage = Math.max(1, page);
-
-  //현재 페이지 기준 페이지네이션의 마지막 번호: 현재 page=7 이라면 end=10, 현재 page=11 -> end=20,
+  //현재 페이지 기준 페이지네이션의 마지막 번호:
+  // 현재 page=7 이라면 end=10, 현재 page=11 -> end=20,
   let endOfPageBlock = Math.ceil(page / 10.0) * 10;
   //페이지네이션의 첫 번호
   const startOfPageBlock = endOfPageBlock - 9;

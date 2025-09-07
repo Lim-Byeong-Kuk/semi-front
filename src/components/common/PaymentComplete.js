@@ -25,12 +25,7 @@ const PaymentComplete = () => {
     const currentOrder = myOrders.find(
       (order) => order.orderCode === ordercode
     );
-    // const currentOrder = myOrders.reduce(
-    //   (max, order) => (order.orderId > max.orderId ? order : max),
-    //   { orderId: 0 }
-    // );
     setOrderConfirm(currentOrder);
-    console.log(currentOrder);
   };
 
   const navigateModalConfirm = () => {
